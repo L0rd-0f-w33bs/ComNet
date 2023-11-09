@@ -22,10 +22,6 @@ def publish_file(local_name, file_name):
     
     except ConnectionRefusedError:
         print("Connection to the server refused.")
-    
-    except Exception as e:
-        print(f"Error publishing file: {str(e)}")
-    
     finally:
         client_socket.close()
 

@@ -11,10 +11,9 @@ class MyException(Exception):
 
 
 class Client(object):
-    def __init__(self, serverhost='172.31.98.75', V='P2P-CI/1.0', DIR='rfc'):
+    def __init__(self, serverhost='172.31.98.75', DIR='rfc'):
         self.SERVER_HOST = serverhost
         self.SERVER_PORT = 5001
-        self.V = V
         self.DIR = 'rfc'  # file directory
         Path(self.DIR).mkdir(exist_ok=True)
 
@@ -33,26 +32,16 @@ class Client(object):
             return
 
         print('Connected')
-        # upload
-        uploader_process = threading.Thread(target=self.init_upload)
-        uploader_process.start()
-        while self.UPLOAD_PORT is None:
-            # wait until upload port is initialized
-            pass
-        print('Listening on the upload port %s' % self.UPLOAD_PORT)
-
         # interactive shell
         self.cli()
 
     def cli(self):
-        command_dict = {'1': self.add,
-                        'Look up': self.lookup,
-                        '3': self.listall,
-                        '4': self.pre_download,
-                        '5': self.shutdown}
+        command_dict = {'publish': self.publish(lname=sys.argv[1],fname=sys.argv[2]),
+                        'fetch': self.fetch(fname),
+                        'shut down': self.shutdown}
         while True:
             try:
-                req = input('\n1: Add, Look up: Look Up, 3: List All, 4: Download, 5: Shut Down\nEnter your request: ')
+                req = input('\npublish lname fname: To publish a file,\n fetch fname: To download a file,\n shut down: Shut Down\nEnter your request: ')
                 command_dict.setdefault(req, self.invalid_input)()
             except MyException as e:
                 print(e)
@@ -60,6 +49,8 @@ class Client(object):
                 print('System Error.')
             except BaseException:
                 self.shutdown()
+    def publish(self, lname, fname):
+        
 
     def init_upload(self):
         # listen upload port

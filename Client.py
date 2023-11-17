@@ -11,7 +11,7 @@ class MyException(Exception):
 
 
 class Client(object):
-    def __init__(self, serverhost='10.128.154.208', V='P2P-CI/1.0', DIR='rfc'):
+    def __init__(self, serverhost='172.31.98.75', V='P2P-CI/1.0', DIR='rfc'):
         self.SERVER_HOST = serverhost
         self.SERVER_PORT = 5001
         self.V = V

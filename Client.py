@@ -46,13 +46,13 @@ class Client(object):
 
     def cli(self):
         command_dict = {'1': self.add,
-                        '2': self.lookup,
+                        'Look up': self.lookup,
                         '3': self.listall,
                         '4': self.pre_download,
                         '5': self.shutdown}
         while True:
             try:
-                req = input('\n1: Add, 2: Look Up, 3: List All, 4: Download, 5: Shut Down\nEnter your request: ')
+                req = input('\n1: Add, Look up: Look Up, 3: List All, 4: Download, 5: Shut Down\nEnter your request: ')
                 command_dict.setdefault(req, self.invalid_input)()
             except MyException as e:
                 print(e)

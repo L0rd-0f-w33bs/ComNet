@@ -18,6 +18,7 @@ class Client(object):
         self.downloading = False
         self.download_path = 'downloaded'  # file directory
         Path(self.download_path).mkdir(exist_ok=True)
+        self.file_dict={}
     def start(self):
         # connect to server
         print('Connecting to the server %s:%s' %
@@ -38,16 +39,18 @@ class Client(object):
         while True:
             req = input('\npublish lname fname: To publish a file,\n fetch fname: To download a file,\n shut down: Shut Down\nEnter your request: ')
             inp=req.split()
-            if inp[0]=='publish':
+            if inp[0]=='publish' and len(inp)==3:
                 self.publish(inp[1],inp[2])
-            elif inp[0]=='fetch':
+            elif inp[0]=='fetch'and len(inp)==2:
                 self.fetch(inp[1])
-            elif inp[0]=='shutdown':
+            elif inp[0]=='shutdown'and len(inp)==1:
                 self.shutdown()
             else:
                 print("The system cannot recognise the command, please try again!")
                 
     def publish(self, lname, fname):
+        if not file.is_file():
+            raise MyException("This file doesn't exist!")
         file = Path(lname)
         print(file)
         msg = 'publish '+ lname + ' ' + fname
@@ -158,12 +161,12 @@ class Client(object):
         elif lines[0].split()[1] == '500':
             raise MyException('Version Not Supported.')
 
-    def download(self, num, title, peer_host, peer_port):
+    def download(self,host,port,dir):
         try:
             # make connnection
             soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             # connect_ex return errors
-            if soc.connect_ex((peer_host, peer_port)):
+            if soc.connect_ex((host, port)):
                 # print('Try Local Network...')
                 # if soc.connect_ex(('localhost', peer_port)):
                 raise MyException('Peer Not Available')
@@ -199,8 +202,6 @@ class Client(object):
                 print('Downloading Completed.')
                 # Share file, send ADD request
                 print('Sending ADD request to share...')
-                if self.shareable:
-                    self.add(num, title)
             elif header[0].split()[1] == '400':
                 raise MyException('Invalid Input.')
             elif header[0].split()[1] == '404':

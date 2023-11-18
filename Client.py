@@ -33,11 +33,11 @@ class Client(object):
         serverlike = threading.Thread(target=self.serverlike)
         serverlike.start()
         # interactive shell
-        self.cli()
+        self.cmd()
 
-    def cli(self):
+    def cmd(self):
         while True:
-            req = input('\npublish lname fname: To publish a file,\n fetch fname: To download a file,\n shut down: Shut Down\nEnter your request: ')
+            req = input('\npublish lname fname: To publish a file,\nfetch fname: To download a file,\nshut down: Shut Down\nEnter your request: ')
             inp=req.split()
             if inp[0]=='publish' and len(inp)==3:
                 self.publish(inp[1],inp[2])
@@ -49,11 +49,11 @@ class Client(object):
                 print("The system cannot recognise the command, please try again!")
                 
     def publish(self, lname, fname):
+        file = Path(lname)
         if not file.is_file():
             raise MyException("This file doesn't exist!")
-        file = Path(lname)
-        print(file)
-        msg = 'publish '+ lname + ' ' + fname
+        self.file_dict.update[fname]=file
+        msg = 'publish ' + fname
         self.server.sendall(msg.encode())
         res = self.server.recv(1024).decode()
         print('Recieve response: \n%s' % res)
@@ -65,8 +65,8 @@ class Client(object):
         rep = self.server.recv(1024).decode()
         host = rep.split()[0]
         port = int(rep.split()[1])
-        dir  = rep.split()[2]
-        self.download(self,host,port,dir)
+        name  = rep.split()[2]
+        self.download(self,host,port,name)
 
     def serverlike(self):
         # listen upload port
@@ -84,10 +84,10 @@ class Client(object):
     def handle_sharing(self, soc, addr):
         mes = soc.recv(1024).decode().splitlines()
         try:
-            path = mes[0].split()[0]
+            name = mes[0].split()[0]
             print('\nUploading...')
             send_length = 0
-            with open(path, 'r') as file:
+            with open(self.file_dict[name], 'r') as file:
                 to_send = file.read(1024)
                 while to_send:
                     send_length += len(to_send.encode())
@@ -161,7 +161,7 @@ class Client(object):
         elif lines[0].split()[1] == '500':
             raise MyException('Version Not Supported.')
 
-    def download(self,host,port,dir):
+    def download(self,host,port,name):
         try:
             # make connnection
             soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -218,6 +218,8 @@ class Client(object):
 
     def shutdown(self):
         print('\nShutting Down...')
+        msg = 'disconnect '
+        self.server.sendall(msg.encode())
         if self.sharing or self.downloading:
             print('\n Files are being downloaded, please wait...')
             while self.sharing or self.downloading:

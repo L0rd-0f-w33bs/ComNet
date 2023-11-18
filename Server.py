@@ -6,15 +6,13 @@ from collections import defaultdict
 
 
 class Server(object):
-    def __init__(self, HOST='172.31.98.75', PORT=5001, V='P2P-CI/1.0'):
-        self.HOST = HOST
-        self.PORT = PORT
-        self.V = V
+    def __init__(self):
+        self.HOST = '172.31.98.75'
+        self.PORT = 5001
         # element: {(host,port), set[rfc #]}
         self.peers = defaultdict(set)
         # element: {RFC #, (title, set[(host, port)])}
-        self.rfcs = {}
-        self.lock = threading.Lock()
+        self.file_record= {}
 
     # start listenning
     def start(self):
@@ -22,8 +20,7 @@ class Server(object):
             self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.s.bind((self.HOST, self.PORT))
             self.s.listen(5)
-            print('Server %s is listening on port %s' %
-                  (self.V, self.PORT))
+            print('Server is listening on port %s' % (self.PORT))
 
             while True:
                 soc, addr = self.s.accept()
@@ -38,6 +35,19 @@ class Server(object):
             except SystemExit:
                 os._exit(0)
 
+    def cmd(self):
+        while True:
+            req = input('\ndiscover hostname: list of local files of the host named hostname,\nping hostname: live check the host named hostname,\nshut down: Shut Down\nEnter your request: ')
+            inp=req.split()
+            if inp[0]=='discover' and len(inp)==2:
+                self.publish(inp[1])
+            elif inp[0]=='ping'and len(inp)==2:
+                self.fetch(inp[1])
+            elif inp[0]=='shutdown'and len(inp)==1:
+                self.shutdown()
+            else:
+                print("The system cannot recognise the command, please try again!")
+
     # connect with a client
     def handler(self, soc, addr):
         # keep recieve request from client
@@ -45,28 +55,23 @@ class Server(object):
         port = None
         while True:
             try:
-                req = soc.recv(1024).decode()
+                rep = soc.recv(1024).decode()
                 print('Recieve request:\n%s' % req)
-                lines = req.splitlines()
-                version = lines[0].split()[-1]
-                if version != self.V:
-                    soc.sendall(str.encode(
-                        self.V + ' 505 P2P-CI Version Not Supported\n'))
+                method = rep.split()[0]
+                if method == 'publish':
+                    host = addr[0]
+                    port = addr[1]
+                    title = rep.split()[1]
+                    self.addRecord(soc, (host, port), title)
+                elif method == 'fetch':
+                    title = rep.split()[1]
+                    self.getPeersOfRfc(soc, title)
+                elif method == 'disconnect':
+                    host = addr[0]
+                    port = addr[1]
+                    self.clear(host,port)
                 else:
-                    method = lines[0].split()[0]
-                    if method == 'ADD':
-                        host = lines[1].split(None, 1)[1]
-                        port = int(lines[2].split(None, 1)[1])
-                        num = int(lines[0].split()[-2])
-                        title = lines[3].split(None, 1)[1]
-                        self.addRecord(soc, (host, port), num, title)
-                    elif method == 'LOOKUP':
-                        num = int(lines[0].split()[-2])
-                        self.getPeersOfRfc(soc, num)
-                    elif method == 'LIST':
-                        self.getAllRecords(soc)
-                    else:
-                        raise AttributeError('Method Not Match')
+                    raise AttributeError('Method Not Match')
             except ConnectionError:
                 print('%s:%s left' % (addr[0], addr[1]))
                 # Clean data if necessary
@@ -74,16 +79,7 @@ class Server(object):
                     self.clear(host,port)
                 soc.close()
                 break
-            except BaseException:
-                try:
-                    soc.sendall(str.encode(self.V + '  400 Bad Request\n'))
-                except ConnectionError:
-                    print('%s:%s left' % (addr[0], addr[1]))
-                    # Clean data if necessary
-                    if host and port:
-                        self.clear(host,port)
-                    soc.close()
-                    break
+
 
     def clear(self, host, port):
         self.lock.acquire()
@@ -140,6 +136,17 @@ class Server(object):
             self.lock.release()
         soc.sendall(str.encode(header))
 
+    def shutdown(self):
+        print('\nShutting Down...')
+        if not self.peers:
+            print('\n There are peers still connected, please wait...')
+            while not self.peers:
+                pass
+        self.s.close()
+        try:
+            sys.exit(0)
+        except SystemExit:
+            os._exit(0)
 
 if __name__ == '__main__':
     s = Server()

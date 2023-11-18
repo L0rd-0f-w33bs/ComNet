@@ -64,6 +64,9 @@ class Client(object):
         msg += fname 
         self.server.sendall(msg.encode())
         rep = self.server.recv(1024).decode()
+        if rep=="File name doesn't exist":
+            print(rep)
+            return None
         host = rep.split()[0]
         port = int(rep.split()[1])
         name  = rep.split()[2]
@@ -96,10 +99,6 @@ class Client(object):
                     to_send = file.read(1024)
         except Exception:
             raise MyException('Uploading Failed')
-        # total_length = int(os.path.getsize(path))
-        # print('send: %s | total: %s' % (send_length, total_length))
-        # if send_length < total_length:
-        #     raise MyException('Uploading Failed')
         else:
             print('Uploading Completed.')
         # Restore CLI
@@ -203,19 +202,10 @@ class Client(object):
                 print('Downloading Completed.')
                 # Share file, send ADD request
                 print('Sending ADD request to share...')
-            elif header[0].split()[1] == '400':
-                raise MyException('Invalid Input.')
-            elif header[0].split()[1] == '404':
-                raise MyException('File Not Available.')
-            elif header[0].split()[1] == '500':
-                raise MyException('Version Not Supported.')
         finally:
             soc.close()
             # Restore CLI
           #  print('\n1: Add, 2: Look Up, 3: List All, 4: Download\nEnter your request: ')
-
-    def invalid_input(self):
-        raise MyException('Invalid Input.')
 
     def shutdown(self):
         print('\nShutting Down...')

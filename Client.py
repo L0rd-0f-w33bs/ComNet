@@ -11,14 +11,9 @@ class MyException(Exception):
 
 
 class Client(object):
-    def __init__(self, serverhost='172.31.98.75', DIR='rfc'):
+    def __init__(self, serverhost='172.31.98.75'):
         self.SERVER_HOST = serverhost
         self.SERVER_PORT = 5001
-        self.DIR = 'rfc'  # file directory
-        Path(self.DIR).mkdir(exist_ok=True)
-
-        self.UPLOAD_PORT = None
-        self.shareable = True
 
     def start(self):
         # connect to server
@@ -30,29 +25,44 @@ class Client(object):
         except Exception:
             print('Server Not Available.')
             return
-
         print('Connected')
+        serverlike = threading.Thread(target=self.serverlike)
+        serverlike.start()
         # interactive shell
         self.cli()
 
     def cli(self):
-        command_dict = {'publish': self.publish(lname=sys.argv[1],fname=sys.argv[2]),
-                        'fetch': self.fetch(fname),
-                        'shut down': self.shutdown}
         while True:
-            try:
-                req = input('\npublish lname fname: To publish a file,\n fetch fname: To download a file,\n shut down: Shut Down\nEnter your request: ')
-                command_dict.setdefault(req, self.invalid_input)()
-            except MyException as e:
-                print(e)
-            except Exception:
-                print('System Error.')
-            except BaseException:
+            req = input('\npublish lname fname: To publish a file,\n fetch fname: To download a file,\n shut down: Shut Down\nEnter your request: ')
+            inp=req.split()
+            if inp[0]=='publish':
+                self.publish(inp[1],inp[2])
+            elif inp[0]=='fetch':
+                self.fetch(inp[1])
+            elif inp[0]=='shutdown':
                 self.shutdown()
+            else:
+                print("The system cannot recognise the command, please try again!")
+                
     def publish(self, lname, fname):
+        file = Path(lname)
+        print(file)
+        msg = 'publish '+ lname + ' ' + fname
+        self.server.sendall(msg.encode())
+        res = self.server.recv(1024).decode()
+        print('Recieve response: \n%s' % res)
         
+    def fetch(self,fname):
+        msg = 'fetch \n'
+        msg += fname 
+        self.server.sendall(msg.encode())
+        rep = self.server.recv(1024).decode()
+        host = rep.split()[0]
+        port = int(rep.split()[1])
+        dir  = rep.split()[2]
+        self.download(self,host,port,dir)
 
-    def init_upload(self):
+    def serverlike(self):
         # listen upload port
         self.uploader = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.uploader.bind(('', 0))
@@ -117,23 +127,6 @@ class Client(object):
         finally:
             soc.close()
 
-    def add(self, num=None, title=None):
-        if not num:
-            num = input('Enter the RFC number: ')
-            if not num.isdigit():
-                raise MyException('Invalid Input.')
-            title = input('Enter the RFC title: ')
-        file = Path('%s/rfc%s.txt' % (self.DIR, num))
-        print(file)
-        if not file.is_file():
-            raise MyException('File Not Exit!')
-        msg = 'ADD RFC %s %s\n' % (num, self.V)
-        msg += 'Host: %s\n' % socket.gethostname()
-        msg += 'Post: %s\n' % self.UPLOAD_PORT
-        msg += 'Title: %s\n' % title
-        self.server.sendall(msg.encode())
-        res = self.server.recv(1024).decode()
-        print('Recieve response: \n%s' % res)
 
     def lookup(self):
         num = input('Enter the RFC number: ')
@@ -181,7 +174,7 @@ class Client(object):
             if((peer_host, peer_port) == (socket.gethostname(), self.UPLOAD_PORT)):
                 raise MyException('Do not choose yourself.')
             # send get request
-            self.download(num, title, peer_host, peer_port)
+            
         elif lines[0].split()[1] == '400':
             raise MyException('Invalid Input.')
         elif lines[0].split()[1] == '404':
@@ -256,8 +249,5 @@ class Client(object):
 
 
 if __name__ == '__main__':
-    if len(sys.argv) == 2:
-        client = Client(sys.argv[1])
-    else:
-        client = Client()
+    client = Client()
     client.start()

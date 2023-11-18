@@ -37,7 +37,7 @@ class Client(object):
 
     def cmd(self):
         while True:
-            req = input('\npublish lname fname: To publish a file,\nfetch fname: To download a file,\nshut down: Shut Down\nEnter your request: ')
+            req = input('\npublish lname fname: To publish a file,\nfetch fname: To download a file,\nshutdown: Shutdown\nEnter your request: ')
             inp=req.split()
             if inp[0]=='publish' and len(inp)==3:
                 self.publish(inp[1],inp[2])
@@ -51,7 +51,8 @@ class Client(object):
     def publish(self, lname, fname):
         file = Path(lname)
         if not file.is_file():
-            raise MyException("This file doesn't exist!")
+            print("This file doesn't exist!")
+            return None
         self.file_dict.update[fname]=file
         msg = 'publish ' + fname
         self.server.sendall(msg.encode())

@@ -9,9 +9,9 @@ class Server(object):
     def __init__(self):
         self.HOST = '172.31.98.75'
         self.PORT = 5001
-        # element: {(host,port), set[rfc #]}
+        # element: {(host,port), set[title]}
         self.peers = defaultdict(set)
-        # element: {RFC #, (title, set[(host, port)])}
+        # element: {title, set[(host, port)]}
         self.file_record= {}
 
     # start listenning
@@ -31,7 +31,7 @@ class Server(object):
 
     def cmd(self):
         while True:
-            req = input('\ndiscover hostname: list of local files of the host named hostname,\nping hostname: live check the host named hostname,\nshut down: Shut Down\nEnter your request: ')
+            req = input('\ndiscover hostname: list of local files of the host named hostname,\nping hostname: live check the host named hostname,\nshutdown: Shut Down\nEnter your request: ')
             inp=req.split()
             if inp[0]=='discover' and len(inp)==2:
                 self.discover(inp[1])
@@ -76,22 +76,16 @@ class Server(object):
 
 
     def clear(self, host, port):
-        self.lock.acquire()
         nums = self.peers[(host, port)]
         for num in nums:
             self.rfcs[num][1].discard((host, port))
         if not self.rfcs[num][1]:
             self.rfcs.pop(num, None)
         self.peers.pop((host, port), None)
-        self.lock.release()
 
     def addRecord(self, soc, peer, num, title):
-        self.lock.acquire()
-        try:
-            self.peers[peer].add(num)
-            self.rfcs.setdefault(num, (title, set()))[1].add(peer)
-        finally:
-            self.lock.release()
+        self.peers[peer].add(num)
+        self.rfcs.setdefault(num, (title, set()))[1].add(peer)
         # print(self.rfcs)
         # print(self.peers)
         header = self.V + ' 200 OK\n'
@@ -100,34 +94,26 @@ class Server(object):
         soc.sendall(str.encode(header))
 
     def getPeersOfRfc(self, soc, num):
-        self.lock.acquire()
-        try:
-            if num not in self.rfcs:
-                header = self.V + ' 404 Not Found\n'
-            else:
-                header = self.V + ' 200 OK\n'
-                title = self.rfcs[num][0]
-                for peer in self.rfcs[num][1]:
-                    header += 'RFC %s %s %s %s\n' % (num,
-                                                     title, peer[0], peer[1])
-        finally:
-            self.lock.release()
+        if num not in self.rfcs:
+            header = self.V + ' 404 Not Found\n'
+        else:
+            header = self.V + ' 200 OK\n'
+            title = self.rfcs[num][0]
+            for peer in self.rfcs[num][1]:
+                header += 'RFC %s %s %s %s\n' % (num,
+                                                    title, peer[0], peer[1])
         soc.sendall(str.encode(header))
 
     def getAllRecords(self, soc):
-        self.lock.acquire()
-        try:
-            if not self.rfcs:
-                header = self.V + ' 404 Not Found\n'
-            else:
-                header = self.V + ' 200 OK\n'
-                for num in self.rfcs:
-                    title = self.rfcs[num][0]
-                    for peer in self.rfcs[num][1]:
-                        header += 'RFC %s %s %s %s\n' % (num,
-                                                         title, peer[0], peer[1])
-        finally:
-            self.lock.release()
+        if not self.rfcs:
+            header = self.V + ' 404 Not Found\n'
+        else:
+            header = self.V + ' 200 OK\n'
+            for num in self.rfcs:
+                title = self.rfcs[num][0]
+                for peer in self.rfcs[num][1]:
+                    header += 'RFC %s %s %s %s\n' % (num,
+                                                        title, peer[0], peer[1])
         soc.sendall(str.encode(header))
 
     def shutdown(self):

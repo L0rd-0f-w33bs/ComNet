@@ -16,24 +16,18 @@ class Server(object):
 
     # start listenning
     def start(self):
-        try:
-            self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            self.s.bind((self.HOST, self.PORT))
-            self.s.listen(5)
-            print('Server is listening on port %s' % (self.PORT))
-
-            while True:
-                soc, addr = self.s.accept()
-                print('%s:%s connected' % (addr[0], addr[1]))
-                thread = threading.Thread(
-                    target=self.handler, args=(soc, addr))
-                thread.start()
-        except KeyboardInterrupt:
-            print('\nShutting down the server..\nGood Bye!')
-            try:
-                sys.exit(0)
-            except SystemExit:
-                os._exit(0)
+        self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.s.bind((self.HOST, self.PORT))
+        self.s.listen(5)
+        print('Server is listening on port %s' % (self.PORT))
+        command=threading.Thread(target=self.cmd)
+        command.start()
+        while True:
+            soc, addr = self.s.accept()
+            print('%s:%s connected' % (addr[0], addr[1]))
+            thread = threading.Thread(
+                target=self.handler, args=(soc, addr))
+            thread.start()
 
     def cmd(self):
         while True:
@@ -148,6 +142,11 @@ class Server(object):
         except SystemExit:
             os._exit(0)
 
+    def discover(self, hostname):
+        print("")
+    def ping(self,hostname):
+        print("")
+        
 if __name__ == '__main__':
     s = Server()
     s.start()

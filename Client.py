@@ -11,10 +11,13 @@ class MyException(Exception):
 
 
 class Client(object):
-    def __init__(self, serverhost='172.31.98.75'):
-        self.SERVER_HOST = serverhost
+    def __init__(self):
+        self.SERVER_HOST = '172.31.98.75'
         self.SERVER_PORT = 5001
-
+        self.sharing = False
+        self.downloading = False
+        self.download_path = 'downloaded'  # file directory
+        Path(self.download_path).mkdir(exist_ok=True)
     def start(self):
         # connect to server
         print('Connecting to the server %s:%s' %
@@ -64,66 +67,39 @@ class Client(object):
 
     def serverlike(self):
         # listen upload port
-        self.uploader = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.uploader.bind(('', 0))
-        self.UPLOAD_PORT = self.uploader.getsockname()[1]
-        self.uploader.listen(5)
-
-        while self.shareable:
-            requester, addr = self.uploader.accept()
+        self.sharer = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.sharer.bind(('', 0))
+        self.SHARE_PORT = self.sharer.getsockname()[1]
+        self.sharer.listen(5)
+        while True:
+            requester, addr = self.sharer.accept()
+            self.sharing=True
             handler = threading.Thread(
-                target=self.handle_upload, args=(requester, addr))
+                target=self.handle_sharing, args=(requester, addr))
             handler.start()
-        self.uploader.close()
 
-    def handle_upload(self, soc, addr):
-        header = soc.recv(1024).decode().splitlines()
+    def handle_sharing(self, soc, addr):
+        mes = soc.recv(1024).decode().splitlines()
         try:
-            version = header[0].split()[-1]
-            num = header[0].split()[-2]
-            method = header[0].split()[0]
-            path = '%s/rfc%s.txt' % (self.DIR, num)
-            if version != self.V:
-                soc.sendall(str.encode(
-                    self.V + ' 505 P2P-CI Version Not Supported\n'))
-            elif not Path(path).is_file():
-                soc.sendall(str.encode(self.V + ' 404 Not Found\n'))
-            elif method == 'GET':
-                header = self.V + ' 200 OK\n'
-                header += 'Data: %s\n' % (time.strftime(
-                    "%a, %d %b %Y %H:%M:%S GMT", time.gmtime()))
-                header += 'OS: %s\n' % (platform.platform())
-                header += 'Last-Modified: %s\n' % (time.strftime(
-                    "%a, %d %b %Y %H:%M:%S GMT", time.gmtime(os.path.getmtime(path))))
-                header += 'Content-Length: %s\n' % (os.path.getsize(path))
-                header += 'Content-Type: %s\n' % (
-                    mimetypes.MimeTypes().guess_type(path)[0])
-                soc.sendall(header.encode())
-                # Uploading
-                try:
-                    print('\nUploading...')
-
-                    send_length = 0
-                    with open(path, 'r') as file:
-                        to_send = file.read(1024)
-                        while to_send:
-                            send_length += len(to_send.encode())
-                            soc.sendall(to_send.encode())
-                            to_send = file.read(1024)
-                except Exception:
-                    raise MyException('Uploading Failed')
-                # total_length = int(os.path.getsize(path))
-                # print('send: %s | total: %s' % (send_length, total_length))
-                # if send_length < total_length:
-                #     raise MyException('Uploading Failed')
-                print('Uploading Completed.')
-                # Restore CLI
-                print(
-                    '\n1: Add, 2: Look Up, 3: List All, 4: Download\nEnter your request: ')
-            else:
-                raise MyException('Bad Request.')
+            path = mes[0].split()[0]
+            print('\nUploading...')
+            send_length = 0
+            with open(path, 'r') as file:
+                to_send = file.read(1024)
+                while to_send:
+                    send_length += len(to_send.encode())
+                    soc.sendall(to_send.encode())
+                    to_send = file.read(1024)
         except Exception:
-            soc.sendall(str.encode(self.V + '  400 Bad Request\n'))
+            raise MyException('Uploading Failed')
+        # total_length = int(os.path.getsize(path))
+        # print('send: %s | total: %s' % (send_length, total_length))
+        # if send_length < total_length:
+        #     raise MyException('Uploading Failed')
+        else:
+            print('Uploading Completed.')
+        # Restore CLI
+            print('\n1: Add, 2: Look Up, 3: List All, 4: Download\nEnter your request: ')
         finally:
             soc.close()
 
@@ -241,6 +217,11 @@ class Client(object):
 
     def shutdown(self):
         print('\nShutting Down...')
+        if self.sharing or self.downloading:
+            print('\n Files are being downloaded, please wait...')
+            while self.sharing or self.downloading:
+                pass
+        self.sharer.close()
         self.server.close()
         try:
             sys.exit(0)

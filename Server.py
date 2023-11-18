@@ -50,7 +50,7 @@ class Server(object):
         while True:
             try:
                 rep = soc.recv(1024).decode()
-                print('Recieve request:\n%s' % req)
+                print('Recieve request:\n%s' % rep)
                 method = rep.split()[0]
                 if method == 'publish':
                     host = addr[0]

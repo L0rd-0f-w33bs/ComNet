@@ -34,9 +34,9 @@ class Server(object):
             req = input('\ndiscover hostname: list of local files of the host named hostname,\nping hostname: live check the host named hostname,\nshut down: Shut Down\nEnter your request: ')
             inp=req.split()
             if inp[0]=='discover' and len(inp)==2:
-                self.publish(inp[1])
+                self.discover(inp[1])
             elif inp[0]=='ping'and len(inp)==2:
-                self.fetch(inp[1])
+                self.ping(inp[1])
             elif inp[0]=='shutdown'and len(inp)==1:
                 self.shutdown()
             else:

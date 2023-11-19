@@ -29,12 +29,12 @@ class Client(object):
             print('Server Not Available.')
             return
         print('Connected')
+        serverlike = threading.Thread(target=self.serverlike)
+        serverlike.start()
         while self.SHARE_PORT==None:
             pass
         msg="port "+ str(self.SHARE_PORT)
         self.server.sendall(msg.encode())
-        serverlike = threading.Thread(target=self.serverlike)
-        serverlike.start()
         # interactive shell
         self.cmd()
 
@@ -84,7 +84,6 @@ class Client(object):
         self.SHARE_PORT = self.sharer.getsockname()[1]
         self.sharer.listen(5)
         while True:
-            print(1)
             requester, addr = self.sharer.accept()
             self.sharing=True
             handler = threading.Thread(

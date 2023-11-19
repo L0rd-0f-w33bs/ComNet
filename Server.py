@@ -53,7 +53,7 @@ class Server(object):
                 method = rep.split()[0]
                 if method == 'port': 
                     port = rep.split()[1]
-                if method == 'publish':
+                elif method == 'publish':
                     host = addr[0]
                     title = rep.split()[1]
                     self.addRecord(host, port, title)

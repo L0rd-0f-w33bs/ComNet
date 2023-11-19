@@ -87,14 +87,16 @@ class Client(object):
                 target=self.handle_sharing, args=(requester, addr))
             handler.start()
 
-    def handle_sharing(self, soc, addr):
+    def handle_sharing(self, soc):
         name = soc.recv(1024).decode()
         print('\nUploading...')
+        self.sharing=True
         with open(self.file_dict[name], 'r') as file:
             to_send = file.read(1024)
             while to_send:
                 soc.sendall(to_send.encode())
                 to_send = file.read(1024)
+        self.sharing=False
         print('Uploading Completed.')
     # Restore CLI
         print('\npublish lname fname: To publish a file,\nfetch fname: To download a file,\nshutdown: Shutdown\nEnter your request: ')
@@ -110,6 +112,7 @@ class Client(object):
         soc.sendall(fname.encode())
 
         # Downloading
+        self.downloading=True
         path = '%s/%s.txt' % (self.download_path, fname)
         print('Downloading...')
         with open(path, 'w') as file:
@@ -118,6 +121,7 @@ class Client(object):
                 file.write(content.decode())
                 content = soc.recv(1024)
         print('Downloading Completed.')
+        self.downloading=True
         soc.close()
             # Restore CLI
         print('\npublish lname fname: To publish a file,\nfetch fname: To download a file,\nshutdown: Shutdown\nEnter your request: ')

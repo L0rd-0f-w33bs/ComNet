@@ -69,7 +69,7 @@ class Server(object):
 
 
     def clear(self, host, port):
-        for name in self.peers[(host, port)]
+        for name in self.peers[(host, port)]:
             self.file_record[name].remove((host, port))
             if len(self.file_record[name])==0:
                 self.file_record.pop(name)

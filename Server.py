@@ -55,7 +55,7 @@ class Server(object):
                     host = addr[0]
                     port = addr[1]
                     title = rep.split()[1]
-                    self.addRecord(soc,host, port, title)
+                    self.addRecord(host, port, title)
                 elif method == 'fetch':
                     title = rep.split()[1]
                     self.getPeersOfRfc(soc, title)
@@ -76,8 +76,8 @@ class Server(object):
         self.peers.pop((host, port))
 
     def addRecord(self, host, port, title):
-        self.peers[(host,port)].add(title)
-        self.file_record[title].add((host,port))
+        self.peers[(host,port)].append(title)
+        self.file_record[title].append((host,port))
 
     def getPeersOfRfc(self, soc, title):
         if title not in self.file_record:

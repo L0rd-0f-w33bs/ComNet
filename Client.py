@@ -6,8 +6,6 @@ import os
 import sys
 import time
 from pathlib import Path
-class MyException(Exception):
-    pass
 
 
 class Client(object):
@@ -53,13 +51,12 @@ class Client(object):
         if not file.is_file():
             print("This file doesn't exist!")
             return None
-        self.file_dict.update[fname]=file
+        self.file_dict.setdefault(fname,file)
         msg = 'publish ' + fname
         self.server.sendall(msg.encode())
         
     def fetch(self,fname):
-        msg = 'fetch \n'
-        msg += fname 
+        msg = 'fetch ' + fname 
         self.server.sendall(msg.encode())
         rep = self.server.recv(1024).decode()
         if rep=="File name doesn't exist":
@@ -67,13 +64,13 @@ class Client(object):
             return None
         lines = rep.splitlines()
         print('Available peers:\n')
-        for line_idx in len(lines):
-            print('%. %s: %s\n' % (line_idx+1,lines[line_idx].split()[0],lines[line_idx].split()[1]))
+        for line_idx in range(len(lines)):
+            print('%d %s: %s\n' % (line_idx+1,lines[line_idx].split()[0],lines[line_idx].split()[1]))
         idx = int(input('Choose one peer to download (input): '))
         if idx > len(lines):
             while idx > len(lines):
                 idx = int(input('Invalid Input. Please choose again: '))
-        self.download(self,lines[idx-1].split()[0],lines[idx-1].split()[1],fname)
+        self.download(lines[idx-1].split()[0],lines[idx-1].split()[1],fname)
 
     def serverlike(self):
         # listen upload port
@@ -106,7 +103,7 @@ class Client(object):
         # make connnection
         soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         # connect_ex return errors
-        soc.connect((host, port))
+        soc.connect((host, int(port)))
         # make request
         soc.sendall(fname.encode())
 

@@ -17,6 +17,7 @@ class Client(object):
         self.download_path = 'downloaded'  # file directory
         Path(self.download_path).mkdir(exist_ok=True)
         self.file_dict={}
+        self.SHARE_PORT=None
     def start(self):
         # connect to server
         print('Connecting to the server %s:%s' %
@@ -28,6 +29,10 @@ class Client(object):
             print('Server Not Available.')
             return
         print('Connected')
+        while self.SHARE_PORT==None:
+            pass
+        msg="port "+ str(self.SHARE_PORT)
+        self.server.sendall(msg.encode())
         serverlike = threading.Thread(target=self.serverlike)
         serverlike.start()
         # interactive shell
@@ -79,6 +84,7 @@ class Client(object):
         self.SHARE_PORT = self.sharer.getsockname()[1]
         self.sharer.listen(5)
         while True:
+            print(1)
             requester, addr = self.sharer.accept()
             self.sharing=True
             handler = threading.Thread(

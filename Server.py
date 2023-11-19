@@ -51,9 +51,10 @@ class Server(object):
                 rep = soc.recv(1024).decode()
                 print('Recieve request:\n%s' % rep)
                 method = rep.split()[0]
+                if method == 'port': 
+                    port = rep.split()[1]
                 if method == 'publish':
                     host = addr[0]
-                    port = addr[1]
                     title = rep.split()[1]
                     self.addRecord(host, port, title)
                 elif method == 'fetch':
@@ -61,7 +62,6 @@ class Server(object):
                     self.getPeersOfRfc(soc, title)
                 elif method == 'disconnect':
                     host = addr[0]
-                    port = addr[1]
                     self.clear(host,port)
                     soc.close()
                     break

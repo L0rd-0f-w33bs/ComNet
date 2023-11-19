@@ -93,28 +93,15 @@ class Server(object):
                                          self.rfcs[num][0], peer[0], peer[1])
         soc.sendall(str.encode(header))
 
-    def getPeersOfRfc(self, soc, num):
-        if num not in self.rfcs:
-            header = self.V + ' 404 Not Found\n'
-        else:
-            header = self.V + ' 200 OK\n'
-            title = self.rfcs[num][0]
-            for peer in self.rfcs[num][1]:
-                header += 'RFC %s %s %s %s\n' % (num,
-                                                    title, peer[0], peer[1])
-        soc.sendall(str.encode(header))
+    def getPeersOfRfc(self, soc, title):
+        if title not in self.file_record:
+            msg="File name doesn't exist"
+            soc.sendall(msg.encode())
+        peers = ''
+        for peer in self.file_record[title]:
+            peers += '%s %s\n' % (peer[0], peer[1])
+        soc.sendall(peers.encode())
 
-    def getAllRecords(self, soc):
-        if not self.rfcs:
-            header = self.V + ' 404 Not Found\n'
-        else:
-            header = self.V + ' 200 OK\n'
-            for num in self.rfcs:
-                title = self.rfcs[num][0]
-                for peer in self.rfcs[num][1]:
-                    header += 'RFC %s %s %s %s\n' % (num,
-                                                        title, peer[0], peer[1])
-        soc.sendall(str.encode(header))
 
     def shutdown(self):
         print('\nShutting Down...')

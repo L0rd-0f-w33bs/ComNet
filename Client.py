@@ -67,10 +67,15 @@ class Client(object):
         if rep=="File name doesn't exist":
             print(rep)
             return None
-        host = rep.split()[0]
-        port = int(rep.split()[1])
-        name  = rep.split()[2]
-        self.download(self,host,port,name)
+        lines = rep.splitlines()
+        print('Available peers:\n')
+        for line_idx in len(lines):
+            print('%. %s: %s\n' % (line_idx+1,lines[line_idx].split()[0],lines[line_idx].split()[1]))
+        idx = int(input('Choose one peer to download (input): '))
+        if idx > len(lines):
+            while idx > len(lines):
+                idx = int(input('Invalid Input. Please choose again: '))
+        self.download(self,lines[idx-1].split()[0],lines[idx-1].split()[1],fname)
 
     def serverlike(self):
         # listen upload port
@@ -86,9 +91,8 @@ class Client(object):
             handler.start()
 
     def handle_sharing(self, soc, addr):
-        mes = soc.recv(1024).decode().splitlines()
+        name = soc.recv(1024).decode()
         try:
-            name = mes[0].split()[0]
             print('\nUploading...')
             send_length = 0
             with open(self.file_dict[name], 'r') as file:
@@ -102,66 +106,12 @@ class Client(object):
         else:
             print('Uploading Completed.')
         # Restore CLI
-            print('\n1: Add, 2: Look Up, 3: List All, 4: Download\nEnter your request: ')
+            print('\npublish lname fname: To publish a file,\nfetch fname: To download a file,\nshutdown: Shutdown\nEnter your request: ')
         finally:
             soc.close()
 
 
-    def lookup(self):
-        num = input('Enter the RFC number: ')
-        title = input('Enter the RFC title(optional): ')
-        msg = 'LOOKUP RFC %s %s\n' % (num, self.V)
-        msg += 'Host: %s\n' % socket.gethostname()
-        msg += 'Post: %s\n' % self.UPLOAD_PORT
-        msg += 'Title: %s\n' % title
-        self.server.sendall(msg.encode())
-        res = self.server.recv(1024).decode()
-        print('Recieve response: \n%s' % res)
-
-    def listall(self):
-        l1 = 'LIST ALL %s\n' % self.V
-        l2 = 'Host: %s\n' % socket.gethostname()
-        l3 = 'Post: %s\n' % self.UPLOAD_PORT
-        msg = l1 + l2 + l3
-        self.server.sendall(msg.encode())
-        res = self.server.recv(1024).decode()
-        print('Recieve response: \n%s' % res)
-
-    def pre_download(self):
-        num = input('Enter the RFC number: ')
-        msg = 'LOOKUP RFC %s %s\n' % (num, self.V)
-        msg += 'Host: %s\n' % socket.gethostname()
-        msg += 'Post: %s\n' % self.UPLOAD_PORT
-        msg += 'Title: Unkown\n'
-        self.server.sendall(msg.encode())
-        lines = self.server.recv(1024).decode().splitlines()
-        if lines[0].split()[1] == '200':
-            # Choose a peer
-            print('Available peers: ')
-            for i, line in enumerate(lines[1:]):
-                line = line.split()
-                print('%s: %s:%s' % (i + 1, line[-2], line[-1]))
-
-            try:
-                idx = int(input('Choose one peer to download: '))
-                title = lines[idx].rsplit(None, 2)[0].split(None, 2)[-1]
-                peer_host = lines[idx].split()[-2]
-                peer_port = int(lines[idx].split()[-1])
-            except Exception:
-                raise MyException('Invalid Input.')
-            # exclude self
-            if((peer_host, peer_port) == (socket.gethostname(), self.UPLOAD_PORT)):
-                raise MyException('Do not choose yourself.')
-            # send get request
-            
-        elif lines[0].split()[1] == '400':
-            raise MyException('Invalid Input.')
-        elif lines[0].split()[1] == '404':
-            raise MyException('File Not Available.')
-        elif lines[0].split()[1] == '500':
-            raise MyException('Version Not Supported.')
-
-    def download(self,host,port,name):
+    def download(self,host,port,fname):
         try:
             # make connnection
             soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

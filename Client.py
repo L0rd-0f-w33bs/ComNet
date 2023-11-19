@@ -56,8 +56,6 @@ class Client(object):
         self.file_dict.update[fname]=file
         msg = 'publish ' + fname
         self.server.sendall(msg.encode())
-        res = self.server.recv(1024).decode()
-        print('Recieve response: \n%s' % res)
         
     def fetch(self,fname):
         msg = 'fetch \n'
@@ -92,70 +90,38 @@ class Client(object):
 
     def handle_sharing(self, soc, addr):
         name = soc.recv(1024).decode()
-        try:
-            print('\nUploading...')
-            send_length = 0
-            with open(self.file_dict[name], 'r') as file:
+        print('\nUploading...')
+        with open(self.file_dict[name], 'r') as file:
+            to_send = file.read(1024)
+            while to_send:
+                soc.sendall(to_send.encode())
                 to_send = file.read(1024)
-                while to_send:
-                    send_length += len(to_send.encode())
-                    soc.sendall(to_send.encode())
-                    to_send = file.read(1024)
-        except Exception:
-            raise MyException('Uploading Failed')
-        else:
-            print('Uploading Completed.')
-        # Restore CLI
-            print('\npublish lname fname: To publish a file,\nfetch fname: To download a file,\nshutdown: Shutdown\nEnter your request: ')
-        finally:
-            soc.close()
+        print('Uploading Completed.')
+    # Restore CLI
+        print('\npublish lname fname: To publish a file,\nfetch fname: To download a file,\nshutdown: Shutdown\nEnter your request: ')
+        soc.close()
 
 
     def download(self,host,port,fname):
-        try:
-            # make connnection
-            soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            # connect_ex return errors
-            if soc.connect_ex((host, port)):
-                # print('Try Local Network...')
-                # if soc.connect_ex(('localhost', peer_port)):
-                raise MyException('Peer Not Available')
-            # make request
-            msg = 'GET RFC %s %s\n' % (num, self.V)
-            msg += 'Host: %s\n' % socket.gethostname()
-            msg += 'OS: %s\n' % platform.platform()
-            soc.sendall(msg.encode())
+        # make connnection
+        soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        # connect_ex return errors
+        soc.connect((host, port))
+        # make request
+        soc.sendall(fname.encode())
 
-            # Downloading
-
-            header = soc.recv(1024).decode()
-            print('Recieve response header: \n%s' % header)
-            header = header.splitlines()
-            if header[0].split()[-2] == '200':
-                path = '%s/rfc%s.txt' % (self.DIR, num)
-                print('Downloading...')
-                try:
-                    with open(path, 'w') as file:
-                        content = soc.recv(1024)
-                        while content:
-                            file.write(content.decode())
-                            content = soc.recv(1024)
-                except Exception:
-                    raise MyException('Downloading Failed')
-
-                total_length = int(header[4].split()[1])
-                # print('write: %s | total: %s' % (os.path.getsize(path), total_length))
-
-                if os.path.getsize(path) < total_length:
-                    raise MyException('Downloading Failed')
-
-                print('Downloading Completed.')
-                # Share file, send ADD request
-                print('Sending ADD request to share...')
-        finally:
-            soc.close()
+        # Downloading
+        path = '%s/%s.txt' % (self.download_path, fname)
+        print('Downloading...')
+        with open(path, 'w') as file:
+            content = soc.recv(1024)
+            while content:
+                file.write(content.decode())
+                content = soc.recv(1024)
+        print('Downloading Completed.')
+        soc.close()
             # Restore CLI
-          #  print('\n1: Add, 2: Look Up, 3: List All, 4: Download\nEnter your request: ')
+        print('\npublish lname fname: To publish a file,\nfetch fname: To download a file,\nshutdown: Shutdown\nEnter your request: ')
 
     def shutdown(self):
         print('\nShutting Down...')

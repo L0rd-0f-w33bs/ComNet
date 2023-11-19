@@ -10,9 +10,9 @@ class Server(object):
         self.HOST = '172.31.98.75'
         self.PORT = 5001
         # element: {(host,port), set[title]}
-        self.peers = defaultdict(set)
+        self.peers = defaultdict(list)
         # element: {title, set[(host, port)]}
-        self.file_record= {}
+        self.file_record= defaultdict(list)
 
     # start listenning
     def start(self):
@@ -48,7 +48,6 @@ class Server(object):
         host = None
         port = None
         while True:
-            try:
                 rep = soc.recv(1024).decode()
                 print('Recieve request:\n%s' % rep)
                 method = rep.split()[0]
@@ -56,7 +55,7 @@ class Server(object):
                     host = addr[0]
                     port = addr[1]
                     title = rep.split()[1]
-                    self.addRecord(soc, (host, port), title)
+                    self.addRecord(soc,host, port, title)
                 elif method == 'fetch':
                     title = rep.split()[1]
                     self.getPeersOfRfc(soc, title)
@@ -64,34 +63,21 @@ class Server(object):
                     host = addr[0]
                     port = addr[1]
                     self.clear(host,port)
-                else:
-                    raise AttributeError('Method Not Match')
-            except ConnectionError:
-                print('%s:%s left' % (addr[0], addr[1]))
-                # Clean data if necessary
-                if host and port:
-                    self.clear(host,port)
-                soc.close()
-                break
+                    soc.close()
+                    break
+
 
 
     def clear(self, host, port):
-        nums = self.peers[(host, port)]
-        for num in nums:
-            self.rfcs[num][1].discard((host, port))
-        if not self.rfcs[num][1]:
-            self.rfcs.pop(num, None)
-        self.peers.pop((host, port), None)
+        for name in self.peers[(host, port)]
+            self.file_record[name].remove((host, port))
+            if len(self.file_record[name])==0:
+                self.file_record.pop(name)
+        self.peers.pop((host, port))
 
-    def addRecord(self, soc, peer, num, title):
-        self.peers[peer].add(num)
-        self.rfcs.setdefault(num, (title, set()))[1].add(peer)
-        # print(self.rfcs)
-        # print(self.peers)
-        header = self.V + ' 200 OK\n'
-        header += 'RFC %s %s %s %s\n' % (num,
-                                         self.rfcs[num][0], peer[0], peer[1])
-        soc.sendall(str.encode(header))
+    def addRecord(self, host, port, title):
+        self.peers[(host,port)].add(title)
+        self.file_record[title].add((host,port))
 
     def getPeersOfRfc(self, soc, title):
         if title not in self.file_record:

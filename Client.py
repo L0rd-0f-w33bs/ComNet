@@ -1,10 +1,7 @@
 import socket
 import threading
-import platform
-import mimetypes
 import os
 import sys
-import time
 from pathlib import Path
 
 

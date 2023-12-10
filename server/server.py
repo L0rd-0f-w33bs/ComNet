@@ -1,182 +1,146 @@
-import socket as sk
+import socket
 import threading
-import time
+import os
+import sys
+from collections import defaultdict
 
 def get_local_ip():
-    s = sk.socket(sk.AF_INET, sk.SOCK_DGRAM)
     try:
-        s.connect(('192.255.255.255', 1))
-        IP = s.getsockname()[0]
-    except:
-        IP = '127.0.0.1'
-    finally:
+        # Create a socket to get the local IP address
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.settimeout(0.1)
+        s.connect(('8.8.8.8', 80))  
+        local_ip = s.getsockname()[0]
         s.close()
-    return IP
- 
-SERVER_IP = get_local_ip()
-SERVER_PORT = 4869
-#SERVER_IP = sk.gethostbyname(sk.gethostname())
-
-SIZE = 1024
-FORMAT = 'utf-8'
-
-class Server:
-    def __init__(self, ip, port):
-        self.server = sk.socket(sk.AF_INET, sk.SOCK_STREAM)
-        self.server_ip = ip
-        self.server_port = port
-        self.server.bind((ip, port))
-        self.server.listen()
-        self.onlineClient = dict()
-        self.connectedClient = dict()
-        self.clientFileList = dict()
-
-    def start(self):
-        print(f"Server is listening on {self.server_ip}:{self.server_port}")
-        while True:
-            threading.Thread(target=self.start_request).start()
-            
-            client_socket, client_address = self.server.accept()
-            client_name = client_socket.recv(SIZE).decode(FORMAT)
-            print('\nClient ' + client_name + f' (IP Address: {client_address}) connected.')
-            self.connectedClient[client_name] = client_address
-            if client_address not in self.clientFileList:
-                self.clientFileList[client_address] = []
-            client_socket.send('_'.encode(FORMAT))
-            self.onlineClient[client_name] = client_address
-
-            threading.Thread(target=self.handle_client, args=(client_socket, client_address, client_name)).start()
-            time.sleep(1)
-            
-
-    def start_request(self):
-        while True:
-            self.server_option()
-
-
-    def server_option(self):
-        print('\nEnter your command:\n> discover `hostname`: discover the list of local files of hostname\n> ping `hostname`: live check hostname')
-        option = input('\nYour command: ')
-        if option.startswith('discover'):
-            print(self.discover(option.split(' ')[1]))
-        elif option.startswith('ping'):
-            print(self.ping(option.split(' ')[1]))
-
-
-    def handle_client(self, client_socket, client_address, client_name):
-        while True:
-            
-            # Receive client's requests
-            try:
-                client_request = client_socket.recv(SIZE).decode(FORMAT)
-            except:
-                print('Waiting for a request...')
-
-            client_command, client_message = client_request.split('@')         # Client request in format `cmd@msg`
-            
-            if client_command != 'DISCONNECT':
-                print(f"\n[{client_address}]Client's request: [{client_command}]", client_message)
-
-            if client_command == 'PUBLISHALL':
-                fileName = client_message.split(':')
-                fileName = fileName[:-1]
-                if client_address in self.clientFileList:
-                    self.clientFileList[client_address] = []
-                    for file in fileName:
-                        self.clientFileList[client_address].append(file)
-                else:
-                    self.clientFileList[client_address] = fileName
-                
-                cmd = 'OK'
-                msg = 'Uploaded successfully!'
-                
-                self.send_message(client_socket, cmd, msg)
-                print(msg)
-
-            elif client_command == 'PUBLISH':
-                fileName = client_message
-                if client_address in self.clientFileList:
-                    self.clientFileList[client_address].append(fileName)
-                else:
-                    self.clientFileList[client_address] = [fileName]
-                
-                cmd = 'OK'
-                msg = 'Uploaded successfully!'
-                
-                self.send_message(client_socket, cmd, msg)
-                print(msg)
-                
-            elif client_command == 'FETCH':
-                fileName = client_message
-                curClientList = list()
-                for cli in self.clientFileList:
-                    if fileName in self.clientFileList[cli] and cli in self.onlineClient.values():
-                        curClientList.append(cli)
-                if curClientList:
-                    self.send_message(client_socket, 'OK', 'These are clients having the file:')
-                    for client in curClientList:
-                        client = client[0] + ':' + str(client[1])
-                        client_socket.send(client.encode(FORMAT))
-                        _ = client_socket.recv(SIZE).decode(FORMAT)
-                    
-                    self.send_message(client_socket, 'DONE', 'All clients are sent.')
-                    self.clientFileList[client_address].append(fileName)
-                    print(f'All clients are sent to [{client_address}]')
-                else:
-                    self.send_message(client_socket, 'ERROR', 'Filename does not exist on server.')
-                    print('Filename does not exist.')
-
-            elif client_command == 'ERROR':
-                print(client_message)
-
-            elif client_command == 'DELETE':
-                fileName = client_message
-                self.clientFileList[client_address].remove(fileName)
-                self.send_message(client_socket, 'OK', 'Deleted successfully!')
-                print('Deleted successfully!')
-
-            elif client_command == 'GETALL':
-                allFile = list()
-                for cli in self.clientFileList:
-                    for fileName in self.clientFileList[cli]:
-                        if fileName not in allFile:
-                            allFile.append(fileName)
-                
-                for file in allFile:
-                    client_socket.send(file.encode(FORMAT))
-                    _ = client_socket.recv(SIZE).decode(FORMAT)
-                self.send_message(client_socket, 'DONE?', 'All files are sent.')
-                print(f'All files are sent to [{client_address}]')
-
-            else:
-                print(f'Client {client_address} disconnected.')
-                self.onlineClient.pop(client_name)
-                client_socket.close()
-                break
+        return local_ip
+    except socket.error:
+        return None
     
-    def send_message(self, client_socket, cmd, msg):
-        respond = cmd + '@' + msg
-        client_socket.send(respond.encode(FORMAT))
+class Server:
+    def __init__(self):
+        self.HOST = get_local_ip()
+        self.PORT = 5001
+        # element: {hostname,(socket,port)}
+        self.online_peers = defaultdict()
+        # element: {hostname,(host,list(file))}
+        self.peers = defaultdict()
+        # element: {title, set[host]}
+        self.file_record= defaultdict(list)
 
-    def ping(self, hostname = ''):
-        if hostname not in self.connectedClient:
-            return 'This host has not connected to server yet.'
-        else:
-            if hostname in self.onlineClient:
-                output = 'ONLINE'
+    # start listenning
+    def start(self):
+        self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.s.bind((self.HOST, self.PORT))
+        self.s.listen(5)
+        print('Server is listening on %s:%s' % (self.HOST,self.PORT))
+        command=threading.Thread(target=self.cmd)
+        command.start()
+        while True:
+            soc, addr = self.s.accept()
+            print('%s:%s connected' % (addr[0], addr[1]))
+            thread = threading.Thread(
+                target=self.handler, args=(soc, addr))
+            thread.start()
+
+    def cmd(self):
+        while True:
+            req = input('\ndiscover hostname: list of local files of the host named hostname,\nping hostname: live check the host named hostname,\nshutdown: Shut Down\nEnter your request: ')
+            inp=req.split()
+            if inp[0]=='discover' and len(inp)==2:
+                self.discover(inp[1])
+            elif inp[0]=='ping'and len(inp)==2:
+                self.ping(inp[1])
+            elif inp[0]=='shutdown'and len(inp)==1:
+                self.shutdown()
             else:
-                output = 'OFFLINE'
-            return output
+                print("The system cannot recognise the command, please try again!")
 
-    def discover(self, hostname = ''):
-        if hostname in self.connectedClient:
-            return self.clientFileList[self.connectedClient[hostname]]
-        else:
+    # connect with a client
+    def handler(self, soc, addr):
+        port = None
+        hostname= None
+        while True:
+                rep = soc.recv(1024).decode('utf-8')
+                print('Recieve request:\n%s' % rep)
+                method = rep.split()[0]
+                if method == 'info': 
+                    port = rep.split()[1]
+                    hostname=rep.split()[2]
+                    self.online_peers[hostname]=(soc,port)
+                    self.peers[hostname]=(addr[0],[])
+                elif method == 'publish':
+                    title = rep.split()[1]
+                    self.addRecord(hostname,title)
+                elif method == 'fetch':
+                    title = rep.split()[1]
+                    self.getPeersOfRfc(soc, title)
+                elif method == 'disconnect':
+                    self.online_peers.pop(hostname)
+                    soc.close()
+                    break
+
+    def addRecord(self, hostname, title):
+        self.peers[hostname][1].append(title)
+        self.file_record[title].append(hostname)
+        
+    def getPeersOfRfc(self, soc, title):
+        if title not in self.file_record:
+            msg="File name doesn't exist"
+            soc.sendall(msg.encode('utf-8'))
+            return
+        peers = title+'\n'
+        for peer in self.file_record[title]:
+            if peer in self.online_peers:
+                peers += '%s %s %s\n' % (peer,self.peers[peer][0], self.online_peers[peer][1])
+        soc.sendall(peers.encode('utf-8'))
+
+
+    def shutdown(self):
+        print('\nShutting Down...')
+        if not self.peers:
+            print('\n There are peers still connected, please wait...')
+            while not self.peers:
+                pass
+        self.s.close()
+        try:
+            sys.exit(0)
+        except SystemExit:
+            os._exit(0)
+
+    def discover(self, hostname):
+        if hostname not in self.online_peers:
+            return hostname + "has not connected to server yet."
+        msg="discover"
+        file_list=[]
+        try:
+            soc=self.online_peers[hostname][0]
+            soc.sendall(msg.encode('utf-8'))
+            rep=soc.recv(1024).decode('utf-8').splitlines()[0]
+            while rep!= 'rdiscover':
+                rep=soc.recv(1024).decode('utf-8').splitlines()[0]
+            for file in range(1,len(rep.splitlines())):
+                file_list.append(file)
+            return file_list
+        except:
+            self.online_peers.pop(hostname)
             return hostname + " has not connected to server yet."
-
-def main():
-    server = Server(SERVER_IP, SERVER_PORT)
-    server.start()
-
+            
+        
+    def ping(self, hostname):
+        if hostname not in self.online_peers:
+            return hostname + " has not connected to server yet."
+        msg="ping"
+        try:
+            soc=self.online_peers[hostname][0]
+            soc.sendall(msg.encode('utf-8'))
+            rep=soc.recv(1024).decode('utf-8')
+            while rep!= 'rping':
+                rep=soc.recv(1024).decode('utf-8')
+            return "ONLINE"
+        except:
+            self.online_peers.pop(hostname)
+            return hostname + " has not connected to server yet."
+        
 if __name__ == '__main__':
-    main()
+    s = Server()
+    s.start()

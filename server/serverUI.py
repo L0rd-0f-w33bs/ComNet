@@ -25,7 +25,7 @@ class ServerUI:
 
     
     def setup_app(self):
-        ctk.set_appearance_mode('dark')
+        ctk.set_appearance_mode('light')
         self.app.title('Server')
         self.app.geometry('960x540')
         threading.Thread(target=self.start_server).start()

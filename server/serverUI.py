@@ -33,7 +33,7 @@ class ServerUI:
 
 
     def create_object(self):
-        self.MainFrame = ctk.CTkFrame(self.app, 960, 540, fg_color='#059669', corner_radius=10)
+        self.MainFrame = ctk.CTkFrame(self.app, 960, 540, fg_color='#059669', corner_radius=0)
         self.AppTitle = ctk.CTkLabel(self.MainFrame, text='FILE-SHARING APPLICATION', font=self.bigFont,
                                       text_color='white', corner_radius=15)
         self.ServerInfo = ctk.CTkLabel(self.app, text='Server IP: ' + get_local_ip(), font=self.mediumFont,

@@ -2,6 +2,7 @@ import socket
 import threading
 import os
 import sys
+import queue
 from collections import defaultdict
 
 def get_local_ip():
@@ -19,15 +20,16 @@ def get_local_ip():
 class Server:
     def __init__(self):
         self.HOST = get_local_ip()
-        self.PORT = 5001
+        self.PORT = 5011
         # element: {hostname,(socket,port)}
         self.online_peers = defaultdict()
         # element: {hostname,(host,list(file))}
         self.peers = defaultdict()
-        # element: {title, set[host]}
+        # element: {title, list[host]}
         self.file_record= defaultdict(list)
-
+        self.msgqueue=queue.Queue()
     # start listenning
+    
     def start(self):
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.s.bind((self.HOST, self.PORT))
@@ -78,6 +80,8 @@ class Server:
                     self.online_peers.pop(hostname)
                     soc.close()
                     break
+                else:
+                    self.msgqueue.put(rep)
 
     def addRecord(self, hostname, title):
         self.peers[hostname][1].append(title)
@@ -115,11 +119,14 @@ class Server:
         try:
             soc=self.online_peers[hostname][0]
             soc.sendall(msg.encode('utf-8'))
-            rep=soc.recv(1024).decode('utf-8').splitlines()[0]
-            while rep!= 'rdiscover':
-                rep=soc.recv(1024).decode('utf-8').splitlines()[0]
+            rep=self.msgqueue.get()
             for file in range(1,len(rep.splitlines())):
                 file_list.append(file)
+                if file not in self.file_record:
+                    self.file_record[file].append(hostname)
+                else:
+                    if hostname not in self.file_record[file]:
+                        self.file_record[file].append(hostname)
             return file_list
         except:
             self.online_peers.pop(hostname)
@@ -133,10 +140,7 @@ class Server:
         try:
             soc=self.online_peers[hostname][0]
             soc.sendall(msg.encode('utf-8'))
-            rep=soc.recv(1024).decode('utf-8')
-            while rep!= 'rping':
-                rep=soc.recv(1024).decode('utf-8')
-            return "ONLINE"
+            return self.msgqueue.get()
         except:
             self.online_peers.pop(hostname)
             return hostname + " has not connected to server yet."

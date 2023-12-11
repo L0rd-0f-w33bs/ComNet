@@ -118,7 +118,9 @@ class Client:
         lines = rep.splitlines()
         fname=lines[0]
         print('Available peers:\n')
+        self.peerswithfiles=[]
         for line_idx in range(1,len(lines)):
+            self.peerswithfiles.append((lines[line_idx].split()[0],lines[line_idx].split()[1],lines[line_idx].split()[2]))
             print('%d %s  %s : %s \n' % (line_idx,lines[line_idx].split()[0],lines[line_idx].split()[1],lines[line_idx].split()[2]))
         idx = int(input('Choose one peer to download (input): '))
         if idx > len(lines):

@@ -24,9 +24,9 @@ class Client:
         try:
             self.server.connect((self.SERVER_HOST, self.SERVER_PORT))
         except Exception:
-            print('Server Not Available.')
+            print('Server Not Available!')
             return
-        print('Connected')
+        print('Connected!')
         serverlike = threading.Thread(target=self.serverlike)
         serverlike.start()
         while self.SHARE_PORT==None:
@@ -77,7 +77,7 @@ class Client:
         
         
     def choose_client(self, rep):
-        if rep=="File name doesn't exist":
+        if rep=="File name doesn't exist!":
             print(rep)
             return 
         lines = rep.splitlines()
@@ -114,7 +114,7 @@ class Client:
                 soc.sendall(to_send)
                 to_send = file.read(1024)
         self.sharing=False
-        print('Uploading Completed.')
+        print('Uploading Completed!')
     # Restore CLI
         print('\n> publish lname fname: To publish a file,\n> fetch fname: To download a file,\nshutdown: Shutdown\nEnter your request: ')
         soc.close()
@@ -137,7 +137,7 @@ class Client:
             while content:
                 file.write(content)
                 content = soc.recv(1024)
-        print('Downloading Completed.')
+        print('Downloading Completed!')
         self.downloading=True
         soc.close()
             # Restore CLI

@@ -26,19 +26,17 @@ class ClientUI:
     def __init__(self):
         self.app = ctk.CTk()
         self.client = Client('', 0, '')
-        self.tinyFont = ctk.CTkFont('Lucida Sans Unicode', 12, 'bold')
-        self.smallFont = ctk.CTkFont('Lucida Sans Unicode', 15, 'bold')
-        self.mediumFont = ctk.CTkFont('Lucida Sans Unicode', 20, 'bold')
-        self.bigFont = ctk.CTkFont('Lucida Sans Unicode', 25, 'bold')
+        self.smallFont = ctk.CTkFont('Century Gothic', 15, 'bold')
+        self.mediumFont = ctk.CTkFont('Century Gothic', 25, 'bold')
+        self.bigFont = ctk.CTkFont('Century Gothic', 40, 'bold')
         self.setup_app()
         self.start_login()
 
 
     def setup_app(self):
-        ctk.set_appearance_mode('dark')
-        ctk.set_default_color_theme('blue')
+        ctk.set_appearance_mode('white')
         self.app.title('Client')
-        self.app.geometry('800x500')
+        self.app.geometry('960x540')
         self.create_object()
         #self.display_main()
 
@@ -46,114 +44,111 @@ class ClientUI:
     def create_object(self):
 
         # Login Page
-        self.LoginFrame = ctk.CTkFrame(self.app, 700, 400, fg_color='#b3cccc', corner_radius=0)
+        self.LoginFrame = ctk.CTkFrame(self.app, 960, 540, fg_color='#059669', corner_radius=0)
         # Objects
-        self.EntryFrame = ctk.CTkFrame(self.LoginFrame, 350, 200, fg_color='#b3cccc', corner_radius=15, border_width=2, border_color='white')
-        self.AppTitleLogin = ctk.CTkLabel(self.LoginFrame, text='File-Sharing Application', font=self.bigFont,
-                                      text_color='black', corner_radius=15)
-        self.AppIcon = ctk.CTkLabel(self.LoginFrame, 70, 70, fg_color='#75a3a3', text='', corner_radius=15)
-        self.ServerIPLabel = ctk.CTkLabel(self.LoginFrame, 100, 30, text='SERVER IP', font=self.smallFont, 
-                                          text_color='black')
+        self.EntryFrame = ctk.CTkFrame(self.LoginFrame, 350, 200, fg_color='#059669', corner_radius=10, border_width=3, border_color='white')
+        self.AppTitleLogin = ctk.CTkLabel(self.LoginFrame, text='FILE-SHARING APPLICATION', font=self.bigFont,
+                                      text_color='white', corner_radius=10)
+        self.AppIcon = ctk.CTkLabel(self.LoginFrame, 70, 70, fg_color='#92f5ac', text='', corner_radius=10)
+        self.ServerIPLabel = ctk.CTkLabel(self.LoginFrame, 100, 30, text='Server IP:', font=self.mediumFont, 
+                                          text_color='white')
         self.ServerIPEntry = ctk.CTkEntry(self.LoginFrame, 200, 30,
-                                    corner_radius=10, placeholder_text='Server IP', text_color='white')
-        self.HostnameLabel = ctk.CTkLabel(self.LoginFrame, 100, 30, text='HOSTNAME', font=self.smallFont,
-                                          text_color='black')
+                                    corner_radius=10, placeholder_text='Server IP', text_color='black')
+        self.HostnameLabel = ctk.CTkLabel(self.LoginFrame, 100, 30, text='Hostname:', font=self.mediumFont,
+                                          text_color='white')
         self.HostnameEntry = ctk.CTkEntry(self.LoginFrame, 200, 30,
-                                    corner_radius=10, placeholder_text='Hostname', text_color='white')
-        self.connect_Button = ctk.CTkButton(self.LoginFrame, text='Connect', command=self.connect, fg_color='#3d5c5c')
+                                    corner_radius=10, placeholder_text='Hostname', text_color='black')
+        self.ConnectButton = ctk.CTkButton(self.LoginFrame, text='Connect', text_color='black', command=self.connect, fg_color='#d4f592', hover_color='#92f5ac', font=self.mediumFont)
 
         #############################################
 
         # Main Page
-        self.MainFrame = ctk.CTkFrame(self.app, 700, 400, fg_color='#75a3a3', corner_radius=0)
+        self.MainFrame = ctk.CTkFrame(self.app, 960, 540, fg_color='#059669', corner_radius=0)
         # Objects
         self.Avatar = ctk.CTkLabel(self.MainFrame, 60, 60, text='')
-        self.AppTitleMain = ctk.CTkLabel(self.MainFrame, text='File-Sharing Application', font=self.mediumFont,
-                                      text_color='black', corner_radius=15)
-        self.PublishButton = ctk.CTkButton(self.MainFrame, text='UPLOAD', command=self.upload, 
-                                           fg_color='#3d5c5c', font=self.smallFont)
-        self.FetchButton = ctk.CTkButton(self.MainFrame, text='DOWNLOAD', command=self.download, 
-                                         fg_color='#3d5c5c', font=self.smallFont)
-        self.ViewRepoButton = ctk.CTkButton(self.MainFrame, text='MY REPOSITORY', command=self.view_repo, 
-                                            fg_color='#3d5c5c', font=self.smallFont)
-        self.ViewServerButton = ctk.CTkButton(self.MainFrame, text='SERVER FILES', command=self.view_server, 
-                                            fg_color='#3d5c5c', font=self.smallFont)
+        self.AppTitleMain = ctk.CTkLabel(self.MainFrame, text='FILE-SHARING APPLICATION', font=self.bigFont,
+                                      text_color='white', corner_radius=10)
+        self.PublishButton = ctk.CTkButton(self.MainFrame, text='Publish file', command=self.upload, 
+                                           text_color='black', fg_color='#d4f592', hover_color='#92f5ac', font=self.mediumFont)
+        self.FetchButton = ctk.CTkButton(self.MainFrame, text='Fetch file', command=self.download, 
+                                         text_color='black', fg_color='#d4f592', hover_color='#92f5ac', font=self.mediumFont)
+        self.ViewRepoButton = ctk.CTkButton(self.MainFrame, text='My repository', command=self.view_repo, 
+                                            text_color='black', fg_color='#d4f592', hover_color='#92f5ac', font=self.mediumFont)
         
         ############################################
 
         # My Repository
-        self.RepoFrame = ctk.CTkFrame(self.MainFrame, 550, 300, fg_color='#b3cccc', corner_radius=10)
+        self.RepoFrame = ctk.CTkFrame(self.MainFrame, 550, 300, fg_color='white', corner_radius=10)
         # Objects
-        self.RepoTitle = ctk.CTkLabel(self.RepoFrame, fg_color='#b3cccc', text='My Repository', text_color='black', font=self.mediumFont)
-        self.RepoList = CTkListbox(self.RepoFrame, fg_color='#333333', corner_radius=1, border_width=3, text_color='white',
+        self.RepoTitle = ctk.CTkLabel(self.RepoFrame, fg_color='white', text='My Repository', text_color='black', font=self.mediumFont)
+        self.RepoList = CTkListbox(self.RepoFrame, fg_color='black', corner_radius=10, border_width=3, text_color='white',
                                    hover_color='#75a3a3', font=self.smallFont, select_color='#527a7a')
 
         # DeleteFile Button
-        self.DeleteFileButton = ctk.CTkButton(self.RepoFrame, text='Delete Selected File', command=self.deleteFile, 
-                                            fg_color='#b30000', font=self.smallFont)
+        self.DeleteFileButton = ctk.CTkButton(self.RepoFrame, text='Delete file', command=self.deleteFile, 
+                                            fg_color='#d4f592', hover_color='#92f5ac', text_color='black', font=self.mediumFont)
 
         ###########################################
 
         # Server Files
-        self.ServerFileFrame = ctk.CTkFrame(self.MainFrame, 550, 300, fg_color='#b3cccc', corner_radius=10)
+        self.ServerFileFrame = ctk.CTkFrame(self.MainFrame, 550, 300, fg_color='white', corner_radius=10)
         # Objects
-        self.ServerFileTitle = ctk.CTkLabel(self.ServerFileFrame, fg_color='#b3cccc', text='Server Files', 
+        self.ServerFileTitle = ctk.CTkLabel(self.ServerFileFrame, fg_color='white', text='Server files', 
                                             text_color='black', font=self.mediumFont)
-        self.ServerFileList = CTkListbox(self.ServerFileFrame, fg_color='#333333', corner_radius=1, border_width=3, text_color='white',
+        self.ServerFileList = CTkListbox(self.ServerFileFrame, fg_color='black', corner_radius=10, border_width=3, text_color='white',
                                    hover_color='#75a3a3', font=self.smallFont, select_color='#527a7a')
         
         # Download button
-        self.DownFileButton = ctk.CTkButton(self.ServerFileFrame, text='FETCH', command=self.fetch_file, 
-                                            fg_color='#3d5c5c', font=self.smallFont)
+        self.DownFileButton = ctk.CTkButton(self.ServerFileFrame, text='Fetch', command=self.fetch_file, 
+                                            fg_color='#d4f592', hover_color='#92f5ac', text_color='black', font=self.mediumFont)
         
         # Disconnect button
-        self.DisconnectButton = ctk.CTkButton(self.MainFrame, text='DISCONNECT', command=self.disconnect, 
-                                            fg_color='#b30000', font=self.smallFont)
+        self.DisconnectButton = ctk.CTkButton(self.MainFrame, text='Disconnect', command=self.disconnect, 
+                                            fg_color='white', hover_color='#92f5ac', text_color='black', font=self.mediumFont)
         
 
     # UI
 
     def start_login(self):
         self.MainFrame.place_forget()
-        self.LoginFrame.place(relwidth=0.96, relheight=0.96, relx=0.5, rely=0.5, anchor=ctk.CENTER)
-        self.EntryFrame.place(relwidth=0.55, relheight=0.5, relx=0.5, rely=0.7, anchor=ctk.CENTER)
-        self.AppTitleLogin.place(relwidth = 0.8, relheight=0.2, relx=0.5, rely=0.13, anchor=ctk.CENTER)
+        self.LoginFrame.place(relwidth=0.95, relheight=0.95, relx=0.5, rely=0.5, anchor=ctk.CENTER)
+        self.EntryFrame.place(relwidth=0.6, relheight=0.5, relx=0.5, rely=0.7, anchor=ctk.CENTER)
+        self.AppTitleLogin.place(relwidth=0.8, relheight=0.2, relx=0.5, rely=0.13, anchor=ctk.CENTER)
         self.AppIcon.configure(image=ctk.CTkImage(Image.open('logo.png'), size=(70,70)))
         self.AppIcon.place(relwidth=0.15, relheight=0.2, relx=0.5, rely=0.3, anchor=ctk.CENTER)
-        self.ServerIPLabel.place(relwidth=0.2, relheight=0.08, relx=0.35, rely=0.55, anchor=ctk.CENTER)
+        self.ServerIPLabel.place(relwidth=0.2, relheight=0.08, relx=0.32, rely=0.55, anchor=ctk.CENTER)
         self.ServerIPEntry.configure(state='normal')
-        self.ServerIPEntry.place(relwidth=0.25, relheight=0.08, relx=0.55, rely=0.55, anchor=ctk.CENTER)
-        self.HostnameLabel.place(relwidth=0.2, relheight=0.08, relx=0.35, rely=0.68, anchor=ctk.CENTER)
+        self.ServerIPEntry.place(relwidth=0.3, relheight=0.08, relx=0.6, rely=0.55, anchor=ctk.CENTER)
+        self.HostnameLabel.place(relwidth=0.2, relheight=0.08, relx=0.32, rely=0.68, anchor=ctk.CENTER)
         self.HostnameEntry.configure(state='normal')
-        self.HostnameEntry.place(relwidth=0.25, relheight=0.08, relx=0.55, rely=0.68, anchor=ctk.CENTER)
-        self.connect_Button.place(relwidth=0.15, relheight=0.06, relx=0.5, rely=0.85, anchor=ctk.CENTER)
+        self.HostnameEntry.place(relwidth=0.3, relheight=0.08, relx=0.6, rely=0.68, anchor=ctk.CENTER)
+        self.ConnectButton.place(relwidth=0.16, relheight=0.08, relx=0.5, rely=0.85, anchor=ctk.CENTER)
 
     
     def display_main(self):
         # Frames and Title
-        self.MainFrame.place(relwidth=1, relheight=1, relx=0.5, rely=0.5, anchor=ctk.CENTER)
-        self.AppTitleMain.place(relwidth=0.72, relheight=0.15, relx=0.64, rely=0.075, anchor=ctk.CENTER)
+        self.MainFrame.place(relwidth=0.95, relheight=0.95, relx=0.5, rely=0.5, anchor=ctk.CENTER)
+        self.AppTitleMain.place(relwidth=0.72, relheight=0.15, relx=0.6, rely=0.1, anchor=ctk.CENTER)
         self.RepoFrame.place(relwidth=0.7, relheight=0.76, relx=0.63, rely=0.58, anchor=ctk.CENTER)
 
         # Client Info
         self.Avatar.configure(image=ctk.CTkImage(Image.open('avatar.png'), size=(50,50)))
-        self.Avatar.place(relx=0.07, rely=0.15, anchor=ctk.CENTER)
-        self.HostnameDis = ctk.CTkLabel(self.MainFrame, 80, 15, fg_color='#75a3a3', 
-                                        text='Hostname: ' + self.client.hostname, text_color='black', font=self.tinyFont)
-        self.IPDis = ctk.CTkLabel(self.MainFrame, 80, 15, fg_color='#75a3a3', text='IP: ' + get_local_ip(),
-                                  text_color='black', font=self.tinyFont)
-        self.ServerIPDis = ctk.CTkLabel(self.MainFrame, 80, 15, fg_color='#75a3a3', text='ServerIP: ' + self.client.server_IP,
-                                  text_color='black', font=self.tinyFont)
-        self.HostnameDis.place(relx=0.2, rely=0.13, anchor=ctk.CENTER)
-        self.IPDis.place(relx=0.2, rely=0.17, anchor=ctk.CENTER)
-        self.ServerIPDis.place(relx=0.14, rely=0.95, anchor=ctk.CENTER)
+        self.Avatar.place(relx=0.05, rely=0.15, anchor=ctk.CENTER)
+        self.HostnameDis = ctk.CTkLabel(self.MainFrame, 80, 15, fg_color='#059669', 
+                                        text='Hostname: ' + self.client.hostname, text_color='white', font=self.smallFont)
+        self.IPDis = ctk.CTkLabel(self.MainFrame, 80, 15, fg_color='#059669', text='Your IP: ' + get_local_ip(),
+                                  text_color='white', font=self.smallFont)
+        self.ServerIPDis = ctk.CTkLabel(self.MainFrame, 80, 15, fg_color='#059669', text='Server IP: ' + self.client.server_IP,
+                                  text_color='white', font=self.smallFont)
+        self.HostnameDis.place(relx=0.18, rely=0.13, anchor=ctk.CENTER)
+        self.IPDis.place(relx=0.18, rely=0.17, anchor=ctk.CENTER)
+        self.ServerIPDis.place(relx=0.12, rely=0.95, anchor=ctk.CENTER)
 
         # Buttons
-        self.PublishButton.place(relwidth=0.2, relheight=0.08, relx=0.14, rely=0.3, anchor=ctk.CENTER)
-        self.FetchButton.place(relwidth=0.2, relheight=0.08, relx=0.14, rely=0.43, anchor=ctk.CENTER)
-        self.ViewRepoButton.place(relwidth=0.2, relheight=0.08, relx=0.14, rely=0.56, anchor=ctk.CENTER)
-        self.ViewServerButton.place(relwidth=0.2, relheight=0.08, relx=0.14, rely=0.69, anchor=ctk.CENTER)
-        self.DisconnectButton.place(relwidth=0.16, relheight=0.07, relx=0.14, rely=0.85, anchor=ctk.CENTER)
+        self.PublishButton.place(relwidth=0.2, relheight=0.08, relx=0.12, rely=0.28, anchor=ctk.CENTER)
+        self.FetchButton.place(relwidth=0.2, relheight=0.08, relx=0.12, rely=0.42, anchor=ctk.CENTER)
+        self.ViewRepoButton.place(relwidth=0.2, relheight=0.08, relx=0.12, rely=0.56, anchor=ctk.CENTER)
+        self.DisconnectButton.place(relwidth=0.2, relheight=0.08, relx=0.12, rely=0.84, anchor=ctk.CENTER)
 
         self.view_repo()
 
@@ -166,17 +161,17 @@ class ClientUI:
         hostname = self.HostnameEntry.get()
         if not SERVER_IP or not hostname:
             # Handle empty fields
-            self.WarningLabel = ctk.CTkLabel(self.LoginFrame, text='Please enter both Server IP and Hostname.',
-                                              text_color='red', font=self.tinyFont)
-            self.WarningLabel.place(relx=0.5, rely=0.75, anchor=ctk.CENTER)
+            self.WarningLabel = ctk.CTkLabel(self.LoginFrame, text='Please enter both Server IP and Hostname!',
+                                              text_color='white', font=self.smallFont)
+            self.WarningLabel.place(relx=0.5, rely=0.76, anchor=ctk.CENTER)
             self.WarningLabel.after(2000, lambda: self.WarningLabel.place_forget())
             return
         
         if not validate_ip_address(SERVER_IP):
             # Handle invalid IP address
-            self.WarningLabel = ctk.CTkLabel(self.LoginFrame, text='Server IP is not valid.',
-                                              text_color='red', font=self.tinyFont)
-            self.WarningLabel.place(relx=0.5, rely=0.75, anchor=ctk.CENTER)
+            self.WarningLabel = ctk.CTkLabel(self.LoginFrame, text='Server IP is not valid!',
+                                              text_color='white', font=self.smallFont)
+            self.WarningLabel.place(relx=0.5, rely=0.76, anchor=ctk.CENTER)
             self.WarningLabel.after(2000, lambda: self.WarningLabel.place_forget())
             return
 
@@ -196,10 +191,10 @@ class ClientUI:
         lname, fname = os.path.split(filePath)
         cmd, msg = self.client.publish(lname, fname)
         if cmd == 'OK':
-            MessageLabel = ctk.CTkLabel(self.MainFrame, text=msg, text_color='green', font=self.tinyFont)
+            MessageLabel = ctk.CTkLabel(self.MainFrame, text=msg, text_color='white', font=self.smallFont)
         else:
-            MessageLabel = ctk.CTkLabel(self.MainFrame, text=msg, text_color='red', font=self.tinyFont)
-        MessageLabel.place(relx=0.14, rely=0.78, anchor=ctk.CENTER)
+            MessageLabel = ctk.CTkLabel(self.MainFrame, text=msg, text_color='white', font=self.smallFont)
+        MessageLabel.place(relx=0.12, rely=0.7, anchor=ctk.CENTER)
         MessageLabel.after(2000, lambda:MessageLabel.place_forget())
         
         # Update Repository after uploading
@@ -209,40 +204,40 @@ class ClientUI:
 
     def download(self):
         self.view_server()
-        self.DownFileButton.place(relwidth=0.2, relheight=0.08, relx=0.5, rely=0.9, anchor=ctk.CENTER)
+        self.DownFileButton.place(relwidth=0.25, relheight=0.08, relx=0.5, rely=0.87, anchor=ctk.CENTER)
 
 
     def view_repo(self):
         self.ServerFileFrame.place_forget()
         self.update_RepoList()
-        self.RepoFrame.place(relwidth=0.7, relheight=0.76, relx=0.63, rely=0.58, anchor=ctk.CENTER)
-        self.RepoTitle.place(relwidth=0.8, relheight=0.2, relx=0.5, rely=0.1, anchor=ctk.CENTER)
-        self.RepoList.place(relwidth=0.8, relheight=0.6, relx=0.5, rely=0.5, anchor=ctk.CENTER)
-        self.DeleteFileButton.place(relx=0.5, rely=0.9, anchor=ctk.CENTER)
+        self.RepoFrame.place(relwidth=0.73, relheight=0.76, relx=0.61, rely=0.58, anchor=ctk.CENTER)
+        self.RepoTitle.place(relwidth=0.9, relheight=0.2, relx=0.5, rely=0.1, anchor=ctk.CENTER)
+        self.RepoList.place(relwidth=0.9, relheight=0.6, relx=0.5, rely=0.5, anchor=ctk.CENTER)
+        self.DeleteFileButton.place(relwidth=0.25, relheight=0.08, relx=0.5, rely=0.87, anchor=ctk.CENTER)
 
 
     def view_server(self):
         self.RepoFrame.place_forget()
         self.DownFileButton.place_forget()
         self.update_ServerFileList()
-        self.ServerFileFrame.place(relwidth=0.7, relheight=0.76, relx=0.63, rely=0.58, anchor=ctk.CENTER)
-        self.ServerFileTitle.place(relwidth=0.8, relheight=0.2, relx=0.5, rely=0.1, anchor=ctk.CENTER)
-        self.ServerFileList.place(relwidth=0.8, relheight=0.6, relx=0.5, rely=0.5, anchor=ctk.CENTER)
+        self.ServerFileFrame.place(relwidth=0.73, relheight=0.76, relx=0.61, rely=0.58, anchor=ctk.CENTER)
+        self.ServerFileTitle.place(relwidth=0.9, relheight=0.2, relx=0.5, rely=0.1, anchor=ctk.CENTER)
+        self.ServerFileList.place(relwidth=0.9, relheight=0.6, relx=0.5, rely=0.5, anchor=ctk.CENTER)
 
 
     def deleteFile(self):
         fName = self.RepoList.get()
         if fName == None:
             msg = 'Please select a file to delete!'
-            MessageLabel = ctk.CTkLabel(self.RepoFrame, text=msg, text_color='red', font=self.tinyFont)
+            MessageLabel = ctk.CTkLabel(self.RepoFrame, text=msg, text_color='#059669', font=self.smallFont)
         else:
             msg = fName + ' deleted successfully!'
-            MessageLabel = ctk.CTkLabel(self.RepoFrame, text=msg, text_color='green', font=self.tinyFont)
+            MessageLabel = ctk.CTkLabel(self.RepoFrame, text=msg, text_color='#059669', font=self.smallFont)
             self.client.deleteFile(self.RepoList.get())
             self.RepoList.delete(self.RepoList.curselection())
             self.update_ServerFileList()
         
-        MessageLabel.place(relx=0.5, rely=0.98, anchor=ctk.CENTER)
+        MessageLabel.place(relx=0.5, rely=0.95, anchor=ctk.CENTER)
         MessageLabel.after(2000, lambda:MessageLabel.place_forget())
         fName = None
 
@@ -251,16 +246,16 @@ class ClientUI:
         fName = self.ServerFileList.get()
         if fName == None:
             msg = 'Please select a file to fetch!'
-            MessageLabel = ctk.CTkLabel(self.ServerFileFrame, text=msg, text_color='red', font=self.tinyFont)
+            MessageLabel = ctk.CTkLabel(self.ServerFileFrame, text=msg, text_color='#059669', font=self.smallFont)
         else:
             msg = self.client.fetch(self.ServerFileList.get())
             if msg.startswith('Received'):
                 self.RepoList.insert('END', self.ServerFileList.get())
-                MessageLabel = ctk.CTkLabel(self.ServerFileFrame, text=msg, text_color='green', font=self.tinyFont)
+                MessageLabel = ctk.CTkLabel(self.ServerFileFrame, text=msg, text_color='#059669', font=self.smallFont)
             else:
-                MessageLabel = ctk.CTkLabel(self.ServerFileFrame, text=msg, text_color='red', font=self.tinyFont)
+                MessageLabel = ctk.CTkLabel(self.ServerFileFrame, text=msg, text_color='#059669', font=self.smallFont)
                 
-        MessageLabel.place(relx=0.5, rely=0.98, anchor=ctk.CENTER)
+        MessageLabel.place(relx=0.5, rely=0.95, anchor=ctk.CENTER)
         MessageLabel.after(2000, lambda:MessageLabel.place_forget())
 
         self.update_ServerFileList()

@@ -75,10 +75,7 @@ class ServerUI:
         else:
             hostname = client.split('\t')[-1]
             status = self.server.ping(hostname)
-            if status == 'online':
-                MessageLabel = ctk.CTkLabel(self.MainFrame, text=f'{hostname}: {status}', text_color='#059669', fg_color='white', corner_radius=10, font=self.mediumFont)
-            else:
-                MessageLabel = ctk.CTkLabel(self.MainFrame, text=f'{hostname}: {status}', text_color='red', fg_color='white', corner_radius=10, font=self.mediumFont)
+            MessageLabel = ctk.CTkLabel(self.MainFrame, text=f'{hostname}: {status}', text_color='#059669', fg_color='white', corner_radius=10, font=self.mediumFont)
         
         MessageLabel.place(relx=0.81, rely=0.43, anchor=ctk.CENTER)
         MessageLabel.after(2000, lambda: MessageLabel.place_forget())

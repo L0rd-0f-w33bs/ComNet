@@ -38,19 +38,19 @@ class ServerUI:
                                       text_color='white', corner_radius=15)
         self.ServerInfo = ctk.CTkLabel(self.app, text='Server IP: ' + get_local_ip(), font=self.mediumFont,
                                        text_color='white', fg_color='#059669', bg_color='#059669')
-        self.ClientListBox = CTkListbox(self.MainFrame, fg_color='#ffffff', corner_radius=10, border_width=3, text_color='black',
+        self.ClientListBox = CTkListbox(self.MainFrame, fg_color='white', corner_radius=10, border_width=3, text_color='black',
                                    hover_color='#d4f592', font=self.smallFont, select_color='#92f5ac')
-        self.IPHeader = ctk.CTkLabel(self.MainFrame, fg_color='#333333',
+        self.IPHeader = ctk.CTkLabel(self.MainFrame, fg_color='black',
                                      text='Client IP', font=self.mediumFont, text_color='white', corner_radius=10)
-        self.NameHeader = ctk.CTkLabel(self.MainFrame, fg_color='#333333',
+        self.NameHeader = ctk.CTkLabel(self.MainFrame, fg_color='black',
                                        text='Client Name', font=self.mediumFont, text_color='white', corner_radius=10)
-        self.RepoList = CTkListbox(self.MainFrame, fg_color='#ffffff', corner_radius=10, border_width=3, text_color='black',
+        self.RepoList = CTkListbox(self.MainFrame, fg_color='white', corner_radius=10, border_width=3, text_color='black',
                                    hover_color='#d4f592', font=self.smallFont, select_color='#92f5ac')
         self.PingButton = ctk.CTkButton(self.MainFrame, fg_color='#d4f592', corner_radius=5, text_color='black',
                                         text='Ping', font=self.mediumFont, hover_color='#92f5ac', command=self.ping)
         self.DiscoverButton = ctk.CTkButton(self.MainFrame, fg_color='#d4f592', corner_radius=5, text_color='black',
                                         text='Discover', font=self.mediumFont, hover_color='#92f5ac', command=self.discover)
-        self.RefreshButton = ctk.CTkButton(self.NameHeader, 20, 20, fg_color='#333333', text='',
+        self.RefreshButton = ctk.CTkButton(self.NameHeader, 20, 20, fg_color='black', text='',
                                             hover_color='#666666', command=self.update_client_listbox)
 
     def display_main(self):
@@ -75,7 +75,7 @@ class ServerUI:
         else:
             hostname = client.split('\t')[-1]
             status = self.server.ping(hostname)
-            MessageLabel = ctk.CTkLabel(self.MainFrame, text=f'{hostname}: {status}', text_color='#059669', fg_color='white', corner_radius=10, font=self.mediumFont)
+            MessageLabel = ctk.CTkLabel(self.MainFrame, text=f'{hostname}: {status}', text_color='white', fg_color='#059669', corner_radius=10, font=self.mediumFont)
         
         MessageLabel.place(relx=0.81, rely=0.43, anchor=ctk.CENTER)
         MessageLabel.after(2000, lambda: MessageLabel.place_forget())
@@ -90,7 +90,7 @@ class ServerUI:
             MessageLabel.after(2000, lambda: MessageLabel.place_forget())
         else:
             hostname = client.split('\t')[-1]
-            repoLabel = ctk.CTkLabel(self.MainFrame, text="Repository of " + hostname, text_color='black', fg_color='#92f5ac', corner_radius=10, font=self.mediumFont)
+            repoLabel = ctk.CTkLabel(self.MainFrame, text="Repository of " + hostname, text_color='white', fg_color='#059669', corner_radius=10, font=self.mediumFont)
             repoLabel.place(relx=0.81, rely=0.5, anchor=ctk.CENTER)
             listFile = self.server.discover(hostname)
             if self.RepoList.size():

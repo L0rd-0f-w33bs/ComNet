@@ -43,9 +43,9 @@ class Client:
         try:
             self.server.connect((self.SERVER_HOST, self.SERVER_PORT))
         except Exception:
-            print('Server Not Available.')
+            print('Server Not Available!')
             return
-        print('Connected')
+        print('Connected!')
         serverlike = threading.Thread(target=self.serverlike)
         serverlike.start()
         while self.SHARE_PORT==None:
@@ -173,7 +173,7 @@ class Client:
             while content:
                 file.write(content)
                 content = soc.recv(1024)
-        print('Downloading Completed.')
+        print('Downloading Completed!')
         self.downloading=True
         soc.close()
         # Restore CLI

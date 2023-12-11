@@ -18,7 +18,7 @@ class ServerUI:
         self.server = Server(SERVER_IP, SERVER_PORT)
         self.smallFont = ctk.CTkFont('Century Gothic', 15, 'bold')
         self.mediumFont = ctk.CTkFont('Century Gothic', 25, 'bold')
-        self.bigFont = ctk.CTkFont('Century Gothic', 50, 'bold')
+        self.bigFont = ctk.CTkFont('Century Gothic', 40, 'bold')
         #self.ClientListName = list()
         self.setup_app()
         self.display_main()

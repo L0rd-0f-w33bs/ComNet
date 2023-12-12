@@ -131,10 +131,11 @@ class Server:
         file=rep.splitlines()
         for idx in range(1,len(file)):
             file_list.append(file[idx])
+            print(file[idx])
             if file[idx] not in self.file_record:
                 self.file_record[file[idx]].append(hostname)
             else:
-                if hostname not in self.file_record[file]:
+                if hostname not in self.file_record[file[idx]]:
                     self.file_record[file[idx]].append(hostname)
         return file_list
             

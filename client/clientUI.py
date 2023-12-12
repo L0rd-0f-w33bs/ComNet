@@ -84,10 +84,6 @@ class ClientUI:
         self.RepoList = CTkListbox(self.RepoFrame, fg_color='white', corner_radius=10, border_width=3, text_color='black',
                                    hover_color='#d4f592', font=self.smallFont, select_color='#92f5ac')
 
-        # DeleteFile Button
-        self.DeleteFileButton = ctk.CTkButton(self.RepoFrame, text='Delete file', command=self.deleteFile, 
-                                            fg_color='#d4f592', hover_color='#92f5ac', text_color='black', font=self.mediumFont)
-
         ###########################################
 
         # Server Files
@@ -97,9 +93,15 @@ class ClientUI:
                                             text_color='#059669', font=self.mediumFont)
         self.ServerFileList = CTkListbox(self.ServerFileFrame, fg_color='white', corner_radius=10, border_width=3, text_color='black',
                                    hover_color='#d4f592', font=self.smallFont, select_color='#92f5ac')
+        self.PeersListTitle = ctk.CTkLabel(self.ServerFileFrame, fg_color='white', text='List of peers', 
+                                            text_color='#059669', font=self.mediumFont)
+        self.PeersList = CTkListbox(self.ServerFileFrame, fg_color='white', corner_radius=10, border_width=3, text_color='black',
+                                   hover_color='#d4f592', font=self.smallFont, select_color='#92f5ac')
         
         # Download button
-        self.DownFileButton = ctk.CTkButton(self.ServerFileFrame, text='Fetch', command=self.fetch_file, 
+        self.DownFileButton1 = ctk.CTkButton(self.ServerFileFrame, text='Fetch', command=self.chooseIP, 
+                                            fg_color='#d4f592', hover_color='#92f5ac', text_color='black', font=self.mediumFont)
+        self.DownFileButton2 = ctk.CTkButton(self.ServerFileFrame, text='Fetch', command=self.fetch_file, 
                                             fg_color='#d4f592', hover_color='#92f5ac', text_color='black', font=self.mediumFont)
         
         # Disconnect button
@@ -199,8 +201,12 @@ class ClientUI:
 
     def download(self):
         self.view_server()
-        self.DownFileButton.place(relwidth=0.25, relheight=0.08, relx=0.5, rely=0.87, anchor=ctk.CENTER)
+        self.DownFileButton1.place(relwidth=0.25, relheight=0.08, relx=0.5, rely=0.87, anchor=ctk.CENTER)
 
+
+    def chooseIP(self):
+        self.view_peer()
+        self.DownFileButton2.place(relwidth=0.25, relheight=0.08, relx=0.5, rely=0.87, anchor=ctk.CENTER)
 
     def view_repo(self):
         self.ServerFileFrame.place_forget()
@@ -208,33 +214,26 @@ class ClientUI:
         self.RepoFrame.place(relwidth=0.73, relheight=0.76, relx=0.61, rely=0.58, anchor=ctk.CENTER)
         self.RepoTitle.place(relwidth=0.9, relheight=0.2, relx=0.5, rely=0.1, anchor=ctk.CENTER)
         self.RepoList.place(relwidth=0.9, relheight=0.6, relx=0.5, rely=0.5, anchor=ctk.CENTER)
-        self.DeleteFileButton.place(relwidth=0.25, relheight=0.08, relx=0.5, rely=0.87, anchor=ctk.CENTER)
 
 
     def view_server(self):
         self.RepoFrame.place_forget()
-        self.DownFileButton.place_forget()
+        self.DownFileButton1.place_forget()
+        self.DownFileButton2.place_forget()
         self.update_ServerFileList()
         self.ServerFileFrame.place(relwidth=0.73, relheight=0.76, relx=0.61, rely=0.58, anchor=ctk.CENTER)
         self.ServerFileTitle.place(relwidth=0.9, relheight=0.2, relx=0.5, rely=0.1, anchor=ctk.CENTER)
         self.ServerFileList.place(relwidth=0.9, relheight=0.6, relx=0.5, rely=0.5, anchor=ctk.CENTER)
 
 
-    def deleteFile(self):
-        fName = self.RepoList.get()
-        if fName == None:
-            msg = 'Please select a file to delete!'
-            MessageLabel = ctk.CTkLabel(self.RepoFrame, text=msg, text_color='#059669', font=self.smallFont)
-        else:
-            msg = fName + ' deleted successfully!'
-            MessageLabel = ctk.CTkLabel(self.RepoFrame, text=msg, text_color='#059669', font=self.smallFont)
-            self.client.deleteFile(self.RepoList.get())
-            self.RepoList.delete(self.RepoList.curselection())
-            self.update_ServerFileList()
-        
-        MessageLabel.place(relx=0.5, rely=0.95, anchor=ctk.CENTER)
-        MessageLabel.after(2000, lambda:MessageLabel.place_forget())
-        fName = None
+    def view_peer(self):
+        self.RepoFrame.place_forget()
+        self.DownFileButton1.place_forget()
+        self.DownFileButton2.place_forget()
+        self.getPeers()
+        self.ServerFileFrame.place(relwidth=0.73, relheight=0.76, relx=0.61, rely=0.58, anchor=ctk.CENTER)
+        self.PeersListTitle.place(relwidth=0.9, relheight=0.2, relx=0.5, rely=0.1, anchor=ctk.CENTER)
+        self.PeersList.place(relwidth=0.9, relheight=0.6, relx=0.5, rely=0.5, anchor=ctk.CENTER)
 
 
     def fetch_file(self):
@@ -270,6 +269,11 @@ class ClientUI:
         filePath = os.path.join(os.getcwd(), REPOSITORY_PATH)
         for fileName in os.listdir(filePath):
             self.RepoList.insert('END',fileName)
+
+
+    def getPeers(self):
+        for peers in self.client.peerswithfile:
+            self.PeersList.insert('END',peers)
 
 
     def update_ServerFileList(self):

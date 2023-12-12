@@ -114,7 +114,7 @@ class ClientUI:
         self.LoginFrame.place(relwidth=0.95, relheight=0.95, relx=0.5, rely=0.5, anchor=ctk.CENTER)
         self.EntryFrame.place(relwidth=0.6, relheight=0.5, relx=0.5, rely=0.7, anchor=ctk.CENTER)
         self.AppTitleLogin.place(relwidth=0.8, relheight=0.2, relx=0.5, rely=0.13, anchor=ctk.CENTER)
-        self.AppIcon.configure(image=ctk.CTkImage(Image.open('client/logo.png'), size=(70,70)))
+        self.AppIcon.configure(image=ctk.CTkImage(Image.open('logo.png'), size=(70,70)))
         self.AppIcon.place(relwidth=0.15, relheight=0.2, relx=0.5, rely=0.3, anchor=ctk.CENTER)
         self.ServerIPLabel.place(relwidth=0.2, relheight=0.08, relx=0.32, rely=0.55, anchor=ctk.CENTER)
         self.ServerIPEntry.configure(state='normal')
@@ -138,7 +138,7 @@ class ClientUI:
                                         text='Hostname: ' + self.client.hostname, text_color='white', font=self.smallFont)
         self.IPDis = ctk.CTkLabel(self.MainFrame, 80, 15, fg_color='#059669', text='Your IP: ' + get_local_ip(),
                                   text_color='white', font=self.smallFont)
-        self.ServerIPDis = ctk.CTkLabel(self.MainFrame, 80, 15, fg_color='#059669', text='Server IP: ' + self.client.server_IP,
+        self.ServerIPDis = ctk.CTkLabel(self.MainFrame, 80, 15, fg_color='#059669', text='Server IP: ' + self.client.SERVER_HOST,
                                   text_color='white', font=self.smallFont)
         self.HostnameDis.place(relx=0.18, rely=0.13, anchor=ctk.CENTER)
         self.IPDis.place(relx=0.18, rely=0.17, anchor=ctk.CENTER)
@@ -176,24 +176,19 @@ class ClientUI:
             return
 
         self.client = Client(SERVER_IP, SERVER_PORT, hostname)
-        if (self.client.start() == False):
-            return
+        self.client.start()
         time.sleep(0.5)
-        
         # Hide the LoginFrame
         self.LoginFrame.pack_forget()
         # Display the MainFrame
         self.display_main()
-
+        
 
     def upload(self):
         filePath = filedialog.askopenfilename()
         lname, fname = os.path.split(filePath)
-        cmd, msg = self.client.publish(lname, fname)
-        if cmd == 'OK':
-            MessageLabel = ctk.CTkLabel(self.MainFrame, text=msg, text_color='white', font=self.smallFont)
-        else:
-            MessageLabel = ctk.CTkLabel(self.MainFrame, text=msg, text_color='white', font=self.smallFont)
+        msg = self.client.publish(lname, fname)
+        MessageLabel = ctk.CTkLabel(self.MainFrame, text=msg, text_color='white', font=self.smallFont)
         MessageLabel.place(relx=0.12, rely=0.7, anchor=ctk.CENTER)
         MessageLabel.after(2000, lambda:MessageLabel.place_forget())
         
@@ -264,9 +259,7 @@ class ClientUI:
     def disconnect(self):
         self.update_RepoList()
         self.update_ServerFileList()
-        self.client.disconnect(self.client.client_socket, self.client.server_IP, self.client.server_Port)
-        self.client.isConnected = False
-        self.client.client_server.close()
+        self.client.shutdown()
         self.start_login()
 
     # Others functions
@@ -280,11 +273,10 @@ class ClientUI:
 
 
     def update_ServerFileList(self):
-        self.client.publish_all()
-        self.client.GetAllFile()
+        self.client.get_server_files()
         if self.ServerFileList.size():
             self.ServerFileList.delete(0,'END')
-        for fileName in self.client.allFile:
+        for fileName in self.client.server_file:
             self.ServerFileList.insert('END',fileName)
 
 

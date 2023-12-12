@@ -58,7 +58,7 @@ class ServerUI:
         self.ClientListBox.place(relwidth=0.6, relheight=0.6, relx=0.32, rely=0.65, anchor=ctk.CENTER)
         self.IPHeader.place(relwidth=0.18, relheight=0.08, relx=0.11, rely=0.3, anchor=ctk.CENTER)
         self.NameHeader.place(relwidth=0.42, relheight=0.08, relx=0.41, rely=0.3, anchor=ctk.CENTER)
-        self.RefreshButton.configure(image=ctk.CTkImage(Image.open('server/refresh.png'), size=(28,28)))
+        self.RefreshButton.configure(image=ctk.CTkImage(Image.open('refresh.png'), size=(28,28)))
         self.RefreshButton.place(relwidth=0.15, relheight=0.8, relx=0.9, rely=0.5, anchor=ctk.CENTER)
         self.RepoList.place(relwidth=0.34, relheight=0.4, relx=0.81, rely=0.75, anchor=ctk.CENTER)
         self.PingButton.place(relwidth=0.16, relheight=0.08, relx=0.72, rely=0.3, anchor=ctk.CENTER)
@@ -88,20 +88,25 @@ class ServerUI:
             MessageLabel.after(2000, lambda: MessageLabel.place_forget())
         else:
             hostname = client.split('\t')[-1]
-            repoLabel = ctk.CTkLabel(self.MainFrame, text="Repository of " + hostname, text_color='white', fg_color='#059669', corner_radius=10, font=self.mediumFont)
-            repoLabel.place(relx=0.81, rely=0.5, anchor=ctk.CENTER)
             listFile = self.server.discover(hostname)
-            if self.RepoList.size():
-                self.RepoList.delete(0,'END')
-            for file in listFile:
-                self.RepoList.insert('END',file)
+            if type(listFile) == str:
+                MessageLabel = ctk.CTkLabel(self.MainFrame, text=f'{listFile}', text_color='white', fg_color='#059669', corner_radius=10, font=self.mediumFont)
+                MessageLabel.place(relx=0.81, rely=0.43, anchor=ctk.CENTER)
+                MessageLabel.after(2000, lambda: MessageLabel.place_forget())
+            else:
+                repoLabel = ctk.CTkLabel(self.MainFrame, text="Repository of " + hostname, text_color='white', fg_color='#059669', corner_radius=10, font=self.mediumFont)
+                repoLabel.place(relx=0.81, rely=0.5, anchor=ctk.CENTER)
+                if self.RepoList.size():
+                    self.RepoList.delete(0,'END')
+                for file in listFile:
+                    self.RepoList.insert('END',file)
 
 
     def update_client_listbox(self):
         if self.ClientListBox.size():
             self.ClientListBox.delete(0,'END')
-        for hostname in self.server.connectedClient:
-            value = self.server.connectedClient[hostname][0] + '\t\t\t' + hostname
+        for hostname in self.server.peers:
+            value = self.server.peers[hostname][0] + '\t\t\t' + hostname
             self.ClientListBox.insert('END', value)
 
 

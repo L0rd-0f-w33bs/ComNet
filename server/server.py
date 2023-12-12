@@ -73,6 +73,8 @@ class Server:
                 elif method == 'publish':
                     title = rep.split()[1]
                     self.addRecord(hostname,title)
+                elif method == 'getall':
+                    self.getAll(soc)
                 elif method == 'fetch':
                     title = rep.split()[1]
                     self.getPeersOfRfc(soc, title)
@@ -85,6 +87,7 @@ class Server:
 
     def addRecord(self, hostname, title):
         self.peers[hostname][1].append(title)
+        print(self.peers[hostname][1])
         self.file_record[title].append(hostname)
         
     def getPeersOfRfc(self, soc, title):
@@ -97,7 +100,12 @@ class Server:
             if peer in self.online_peers:
                 peers += '%s %s %s\n' % (peer,self.peers[peer][0], self.online_peers[peer][1])
         soc.sendall(peers.encode('utf-8'))
-
+        
+    def getAll(self, soc):
+        filelist = 'All files:\n'
+        for title in self.file_record:
+            filelist += '%s\n' % title
+        soc.sendall(filelist.encode('utf-8'))
 
     def shutdown(self):
         print('\nShutting Down...')
@@ -113,37 +121,44 @@ class Server:
 
     def discover(self, hostname):
         if hostname not in self.online_peers:
-            return hostname + "has not connected to server yet."
+            print (hostname + " has not connected to server yet.")
+            return "OFFLINE"
         msg="discover"
         file_list=[]
         try:
             soc=self.online_peers[hostname][0]
             soc.sendall(msg.encode('utf-8'))
             rep=self.msgqueue.get()
-            for file in range(1,len(rep.splitlines())):
-                file_list.append(file)
-                if file not in self.file_record:
-                    self.file_record[file].append(hostname)
+            file=rep.splitlines()
+            for idx in range(1,len(file)):
+                file_list.append(file[idx])
+                if file[idx] not in self.file_record:
+                    self.file_record[file[idx]].append(hostname)
                 else:
                     if hostname not in self.file_record[file]:
-                        self.file_record[file].append(hostname)
+                        self.file_record[file[idx]].append(hostname)
             return file_list
         except:
             self.online_peers.pop(hostname)
-            return hostname + " has not connected to server yet."
+            print (hostname + " has not connected to server yet.")
+            return "OFFLINE"
             
         
     def ping(self, hostname):
         if hostname not in self.online_peers:
-            return hostname + " has not connected to server yet."
+            print (hostname + " has not connected to server yet.")
+            return "OFFLINE"
         msg="ping"
         try:
             soc=self.online_peers[hostname][0]
             soc.sendall(msg.encode('utf-8'))
-            return self.msgqueue.get()
+            msg=self.msgqueue.get()
+            print (hostname + " is "+ msg)
+            return msg
         except:
             self.online_peers.pop(hostname)
-            return hostname + " has not connected to server yet."
+            print (hostname + " has not connected to server yet.")
+            return "OFFLINE"
         
 if __name__ == '__main__':
     s = Server()

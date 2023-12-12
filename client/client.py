@@ -35,6 +35,7 @@ class Client:
             self.file_list.append(file)
         self.SHARE_PORT=None
         self.msgqueue=queue.Queue()
+        
     def start(self):
         # connect to server
         print('Connecting to the server %s:%s' %
@@ -55,7 +56,8 @@ class Client:
         listentoserver = threading.Thread(target=self.listen)
         listentoserver.start()
         # interactive shell
-        self.cmd()
+        commandthread=threading.Thread(target=self.cmd)
+        commandthread.start()
 
     def cmd(self):
         while True:
@@ -66,9 +68,10 @@ class Client:
             elif inp[0]=='fetch'and len(inp)==2:
                 self.fetch(inp[1])
             elif inp[0]=='getall'and len(inp)==1:
-                self.get_server_files()
+                self.get_server_files(self)
             elif inp[0]=='shutdown'and len(inp)==1:
                 self.shutdown()
+                break
             else:
                 print("The system cannot recognise the command, please try again!")
                 
@@ -112,6 +115,8 @@ class Client:
         return msg
         
     def fetch(self, fname):
+        if fname in os.listdir(os.path.join(os.getcwd(), self.REPOSITORY)):
+            return('File already existing in the repository.')
         msg="fetch " + fname
         self.server.sendall(msg.encode('utf-8'))
         rep=self.msgqueue.get()

@@ -125,23 +125,18 @@ class Server:
             return "OFFLINE"
         msg="discover"
         file_list=[]
-        try:
-            soc=self.online_peers[hostname][0]
-            soc.sendall(msg.encode('utf-8'))
-            rep=self.msgqueue.get()
-            file=rep.splitlines()
-            for idx in range(1,len(file)):
-                file_list.append(file[idx])
-                if file[idx] not in self.file_record:
+        soc=self.online_peers[hostname][0]
+        soc.sendall(msg.encode('utf-8'))
+        rep=self.msgqueue.get()
+        file=rep.splitlines()
+        for idx in range(1,len(file)):
+            file_list.append(file[idx])
+            if file[idx] not in self.file_record:
+                self.file_record[file[idx]].append(hostname)
+            else:
+                if hostname not in self.file_record[file]:
                     self.file_record[file[idx]].append(hostname)
-                else:
-                    if hostname not in self.file_record[file]:
-                        self.file_record[file[idx]].append(hostname)
-            return file_list
-        except:
-            self.online_peers.pop(hostname)
-            print (hostname + " has not connected to server yet.")
-            return "OFFLINE"
+        return file_list
             
         
     def ping(self, hostname):
@@ -149,16 +144,11 @@ class Server:
             print (hostname + " has not connected to server yet.")
             return "OFFLINE"
         msg="ping"
-        try:
-            soc=self.online_peers[hostname][0]
-            soc.sendall(msg.encode('utf-8'))
-            msg=self.msgqueue.get()
-            print (hostname + " is "+ msg)
-            return msg
-        except:
-            self.online_peers.pop(hostname)
-            print (hostname + " has not connected to server yet.")
-            return "OFFLINE"
+        soc=self.online_peers[hostname][0]
+        soc.sendall(msg.encode('utf-8'))
+        msg=self.msgqueue.get()
+        print (hostname + " is "+ msg)
+        return msg
         
 if __name__ == '__main__':
     s = Server()

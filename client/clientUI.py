@@ -80,9 +80,9 @@ class ClientUI:
         # My Repository
         self.RepoFrame = ctk.CTkFrame(self.MainFrame, 550, 300, fg_color='white', corner_radius=10)
         # Objects
-        self.RepoTitle = ctk.CTkLabel(self.RepoFrame, fg_color='white', text='My Repository', text_color='black', font=self.mediumFont)
-        self.RepoList = CTkListbox(self.RepoFrame, fg_color='black', corner_radius=10, border_width=3, text_color='white',
-                                   hover_color='#75a3a3', font=self.smallFont, select_color='#527a7a')
+        self.RepoTitle = ctk.CTkLabel(self.RepoFrame, fg_color='white', text='My repository', text_color='#059669', font=self.mediumFont)
+        self.RepoList = CTkListbox(self.RepoFrame, fg_color='white', corner_radius=10, border_width=3, text_color='black',
+                                   hover_color='#d4f592', font=self.smallFont, select_color='#92f5ac')
 
         # DeleteFile Button
         self.DeleteFileButton = ctk.CTkButton(self.RepoFrame, text='Delete file', command=self.deleteFile, 
@@ -93,10 +93,10 @@ class ClientUI:
         # Server Files
         self.ServerFileFrame = ctk.CTkFrame(self.MainFrame, 550, 300, fg_color='white', corner_radius=10)
         # Objects
-        self.ServerFileTitle = ctk.CTkLabel(self.ServerFileFrame, fg_color='white', text='Server files', 
-                                            text_color='black', font=self.mediumFont)
-        self.ServerFileList = CTkListbox(self.ServerFileFrame, fg_color='black', corner_radius=10, border_width=3, text_color='white',
-                                   hover_color='#75a3a3', font=self.smallFont, select_color='#527a7a')
+        self.ServerFileTitle = ctk.CTkLabel(self.ServerFileFrame, fg_color='white', text='List of files', 
+                                            text_color='#059669', font=self.mediumFont)
+        self.ServerFileList = CTkListbox(self.ServerFileFrame, fg_color='white', corner_radius=10, border_width=3, text_color='black',
+                                   hover_color='#d4f592', font=self.smallFont, select_color='#92f5ac')
         
         # Download button
         self.DownFileButton = ctk.CTkButton(self.ServerFileFrame, text='Fetch', command=self.fetch_file, 
@@ -128,7 +128,7 @@ class ClientUI:
     def display_main(self):
         # Frames and Title
         self.MainFrame.place(relwidth=0.95, relheight=0.95, relx=0.5, rely=0.5, anchor=ctk.CENTER)
-        self.AppTitleMain.place(relwidth=0.72, relheight=0.15, relx=0.6, rely=0.1, anchor=ctk.CENTER)
+        self.AppTitleMain.place(relwidth=0.72, relheight=0.15, relx=0.6, rely=0.08, anchor=ctk.CENTER)
         self.RepoFrame.place(relwidth=0.7, relheight=0.76, relx=0.63, rely=0.58, anchor=ctk.CENTER)
 
         # Client Info
@@ -142,13 +142,13 @@ class ClientUI:
                                   text_color='white', font=self.smallFont)
         self.HostnameDis.place(relx=0.18, rely=0.13, anchor=ctk.CENTER)
         self.IPDis.place(relx=0.18, rely=0.17, anchor=ctk.CENTER)
-        self.ServerIPDis.place(relx=0.12, rely=0.95, anchor=ctk.CENTER)
+        self.ServerIPDis.place(relx=0.12, rely=0.9, anchor=ctk.CENTER)
 
         # Buttons
-        self.PublishButton.place(relwidth=0.2, relheight=0.08, relx=0.12, rely=0.28, anchor=ctk.CENTER)
-        self.FetchButton.place(relwidth=0.2, relheight=0.08, relx=0.12, rely=0.42, anchor=ctk.CENTER)
-        self.ViewRepoButton.place(relwidth=0.2, relheight=0.08, relx=0.12, rely=0.56, anchor=ctk.CENTER)
-        self.DisconnectButton.place(relwidth=0.2, relheight=0.08, relx=0.12, rely=0.84, anchor=ctk.CENTER)
+        self.PublishButton.place(relwidth=0.2, relheight=0.08, relx=0.12, rely=0.3, anchor=ctk.CENTER)
+        self.FetchButton.place(relwidth=0.2, relheight=0.08, relx=0.12, rely=0.45, anchor=ctk.CENTER)
+        self.ViewRepoButton.place(relwidth=0.2, relheight=0.08, relx=0.12, rely=0.6, anchor=ctk.CENTER)
+        self.DisconnectButton.place(relwidth=0.2, relheight=0.08, relx=0.12, rely=0.8, anchor=ctk.CENTER)
 
         self.view_repo()
 

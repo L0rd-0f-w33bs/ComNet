@@ -35,7 +35,7 @@ class Client:
             self.file_list.append(file)
         self.SHARE_PORT=None
         self.msgqueue=queue.Queue()
-        
+        self.fname=''
     def start(self):
         # connect to server
         print('Connecting to the server %s:%s' %
@@ -118,6 +118,7 @@ class Client:
         if fname in os.listdir(os.path.join(os.getcwd(), self.REPOSITORY)):
             return('File already existing in the repository.')
         msg="fetch " + fname
+        self.fname = fname
         self.server.sendall(msg.encode('utf-8'))
         rep=self.msgqueue.get()
         lines = rep.splitlines()
@@ -127,12 +128,9 @@ class Client:
         for line_idx in range(1,len(lines)):
             self.peerswithfile.append((lines[line_idx].split()[0],lines[line_idx].split()[1],lines[line_idx].split()[2]))
             print('%d %s  %s : %s \n' % (line_idx,lines[line_idx].split()[0],lines[line_idx].split()[1],lines[line_idx].split()[2]))
-        idx = int(input('Choose one peer to download (input): '))
-        if idx > len(lines):
-            while idx > len(lines):
-                idx = int(input('Invalid Input. Please choose again: '))
-        return self.download(lines[idx].split()[1],lines[idx].split()[2],fname)
-
+    
+    def choose_peer(self,host,port,fname):
+        return self.download(host,port,fname)
     def serverlike(self):
         # listen upload port
         self.sharer = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

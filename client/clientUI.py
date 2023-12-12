@@ -34,7 +34,7 @@ class ClientUI:
 
 
     def setup_app(self):
-        ctk.set_appearance_mode('white')
+        ctk.set_appearance_mode('light')
         self.app.title('Client')
         self.app.geometry('960x540')
         self.create_object()

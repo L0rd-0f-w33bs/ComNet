@@ -114,7 +114,7 @@ class ClientUI:
         self.LoginFrame.place(relwidth=0.95, relheight=0.95, relx=0.5, rely=0.5, anchor=ctk.CENTER)
         self.EntryFrame.place(relwidth=0.6, relheight=0.5, relx=0.5, rely=0.7, anchor=ctk.CENTER)
         self.AppTitleLogin.place(relwidth=0.8, relheight=0.2, relx=0.5, rely=0.13, anchor=ctk.CENTER)
-        self.AppIcon.configure(image=ctk.CTkImage(Image.open('logo.png'), size=(70,70)))
+        self.AppIcon.configure(image=ctk.CTkImage(Image.open('client/logo.png'), size=(70,70)))
         self.AppIcon.place(relwidth=0.15, relheight=0.2, relx=0.5, rely=0.3, anchor=ctk.CENTER)
         self.ServerIPLabel.place(relwidth=0.2, relheight=0.08, relx=0.32, rely=0.55, anchor=ctk.CENTER)
         self.ServerIPEntry.configure(state='normal')
@@ -157,7 +157,7 @@ class ClientUI:
 
     def connect(self):
         SERVER_IP = self.ServerIPEntry.get()
-        SERVER_PORT = 4869
+        SERVER_PORT = 5011
         hostname = self.HostnameEntry.get()
         if not SERVER_IP or not hostname:
             # Handle empty fields

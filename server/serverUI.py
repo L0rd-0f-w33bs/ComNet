@@ -6,8 +6,6 @@ from CTkListbox import *
 
 
 SERVER_IP = get_local_ip()
-SERVER_PORT = 4869
-
 SIZE = 1024
 FORMAT = 'utf-8'
 
@@ -15,7 +13,7 @@ FORMAT = 'utf-8'
 class ServerUI:
     def __init__(self):
         self.app = ctk.CTk()
-        self.server = Server(SERVER_IP, SERVER_PORT)
+        self.server = Server()
         self.smallFont = ctk.CTkFont('Century Gothic', 15, 'bold')
         self.mediumFont = ctk.CTkFont('Century Gothic', 25, 'bold')
         self.bigFont = ctk.CTkFont('Century Gothic', 40, 'bold')
@@ -60,7 +58,7 @@ class ServerUI:
         self.ClientListBox.place(relwidth=0.6, relheight=0.6, relx=0.32, rely=0.65, anchor=ctk.CENTER)
         self.IPHeader.place(relwidth=0.18, relheight=0.08, relx=0.11, rely=0.3, anchor=ctk.CENTER)
         self.NameHeader.place(relwidth=0.42, relheight=0.08, relx=0.41, rely=0.3, anchor=ctk.CENTER)
-        self.RefreshButton.configure(image=ctk.CTkImage(Image.open('refresh.png'), size=(28,28)))
+        self.RefreshButton.configure(image=ctk.CTkImage(Image.open('server/refresh.png'), size=(28,28)))
         self.RefreshButton.place(relwidth=0.15, relheight=0.8, relx=0.9, rely=0.5, anchor=ctk.CENTER)
         self.RepoList.place(relwidth=0.34, relheight=0.4, relx=0.81, rely=0.75, anchor=ctk.CENTER)
         self.PingButton.place(relwidth=0.16, relheight=0.08, relx=0.72, rely=0.3, anchor=ctk.CENTER)

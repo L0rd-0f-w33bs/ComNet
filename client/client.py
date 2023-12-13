@@ -30,6 +30,7 @@ class Client:
             os.makedirs(self.REPOSITORY)
         self.file_list=[]
         self.server_file = []
+        self.peerswithfile=[]
         filePath = os.path.join(os.getcwd(), self.REPOSITORY)
         for file in os.listdir(filePath):
             self.file_list.append(file)
@@ -99,7 +100,7 @@ class Client:
         self.file_list.append(fname)
         msg = 'publish ' + fname
         self.server.sendall(msg.encode('utf-8'))
-        return "OK"
+        return "Completed!"
     
     def get_server_files(self):
         msg='getall'
@@ -110,13 +111,13 @@ class Client:
         lines = rep.splitlines()
         for line_idx in range(1,len(lines)):
             self.server_file.append(lines[line_idx])
-        msg = 'Received all files from server.'
+        msg = 'Received all files from server!'
         print(msg)
         return msg
         
     def fetch(self, fname):
         if fname in os.listdir(os.path.join(os.getcwd(), self.REPOSITORY)):
-            return('File already existing in the repository.')
+            return('File already existing in the repository!')
         msg="fetch " + fname
         self.fname = fname
         self.server.sendall(msg.encode('utf-8'))
@@ -155,7 +156,7 @@ class Client:
                 soc.sendall(to_send)
                 to_send = file.read(1024)
         self.sharing-=1
-        print('Uploading Completed.')
+        print('Uploading Completed!')
         # Restore CLI
         print('\n> publish lname fname: To publish a file,\n> fetch fname: To download a file,\nshutdown: Shutdown\nEnter your request: ')
         soc.close()
@@ -183,7 +184,7 @@ class Client:
         soc.close()
         # Restore CLI
         print('\n> publish lname fname: To publish a file,\n> fetch fname: To download a file,\nshutdown: Shutdown\nEnter your request: ')
-        return 'Downloading Completed.'
+        return 'Downloading Completed!'
 
     def shutdown(self):
         print('\nShutting Down...')

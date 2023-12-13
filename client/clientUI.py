@@ -249,8 +249,13 @@ class ClientUI:
             MessageLabel.after(2000, lambda:MessageLabel.place_forget())
         else:
             msg = self.client.fetch(self.ServerFileList.get())
-            time.sleep(0.5)
-            self.chooseIP()
+            if msg=='File already existing in the repository!':
+                MessageLabel = ctk.CTkLabel(self.ServerFileFrame, text=msg, text_color='#059669', font=self.smallFont)
+                MessageLabel.place(relx=0.5, rely=0.95, anchor=ctk.CENTER)
+                MessageLabel.after(2000, lambda:MessageLabel.place_forget())
+            else:
+                time.sleep(0.5)
+                self.chooseIP()
 
     def choose_peer(self):
         hostname,host,port = self.PeersList.get()

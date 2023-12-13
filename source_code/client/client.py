@@ -56,26 +56,7 @@ class Client:
         self.server.sendall(msg.encode('utf-8'))
         listentoserver = threading.Thread(target=self.listen)
         listentoserver.start()
-        # interactive shell
-        commandthread=threading.Thread(target=self.cmd)
-        commandthread.start()
-
-    def cmd(self):
-        while True:
-            req = input('\n> publish lname fname: To publish a file,\n> fetch fname: To download a file,\nshutdown: Shutdown\nEnter your request: ')
-            inp=req.split()
-            if inp[0]=='publish' and len(inp)==3:
-                self.publish(inp[1],inp[2])
-            elif inp[0]=='fetch'and len(inp)==2:
-                self.fetch(inp[1])
-            elif inp[0]=='getall'and len(inp)==1:
-                self.get_server_files(self)
-            elif inp[0]=='shutdown'and len(inp)==1:
-                self.shutdown()
-                break
-            else:
-                print("The system cannot recognise the command, please try again!")
-                
+      
     def listen(self):
         while True:
             msg=self.server.recv(1024).decode('utf-8')
@@ -157,7 +138,6 @@ class Client:
         self.sharing-=1
         print('Uploading Completed!')
         # Restore CLI
-        print('\n> publish lname fname: To publish a file,\n> fetch fname: To download a file,\nshutdown: Shutdown\nEnter your request: ')
         soc.close()
 
 
@@ -183,7 +163,6 @@ class Client:
         self.file_list.append(fname)
         soc.close()
         # Restore CLI
-        print('\n> publish lname fname: To publish a file,\n> fetch fname: To download a file,\nshutdown: Shutdown\nEnter your request: ')
         return 'Download Completed!'
 
     def shutdown(self):
@@ -200,11 +179,3 @@ class Client:
             sys.exit(0)
         except SystemExit:
             os._exit(0)
-
-
-if __name__ == '__main__':
-    SERVER_IP = input("Enter server's IP: ")
-    SERVER_PORT = 5011
-    hostname = input("Enter your name: ")
-    client = Client(SERVER_IP, SERVER_PORT, hostname)
-    client.start()

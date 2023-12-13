@@ -35,27 +35,12 @@ class Server:
         self.s.bind((self.HOST, self.PORT))
         self.s.listen(5)
         print('Server is listening on %s:%s' % (self.HOST,self.PORT))
-        command=threading.Thread(target=self.cmd)
-        command.start()
         while True:
             soc, addr = self.s.accept()
             print('%s:%s connected' % (addr[0], addr[1]))
             thread = threading.Thread(
                 target=self.handler, args=(soc, addr))
             thread.start()
-
-    def cmd(self):
-        while True:
-            req = input('\ndiscover hostname: list of local files of the host named hostname,\nping hostname: live check the host named hostname,\nshutdown: Shut Down\nEnter your request: ')
-            inp=req.split()
-            if inp[0]=='discover' and len(inp)==2:
-                self.discover(inp[1])
-            elif inp[0]=='ping'and len(inp)==2:
-                self.ping(inp[1])
-            elif inp[0]=='shutdown'and len(inp)==1:
-                self.shutdown()
-            else:
-                print("The system cannot recognise the command, please try again!")
 
     # connect with a client
     def handler(self, soc, addr):
@@ -174,6 +159,3 @@ class Server:
             print (hostname + " has not connected to server yet.")
             return "OFFLINE"
         
-if __name__ == '__main__':
-    s = Server()
-    s.start()

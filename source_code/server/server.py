@@ -105,16 +105,8 @@ class Server:
         soc.sendall(filelist.encode('utf-8'))
 
     def shutdown(self):
-        print('\nShutting Down...')
-        if not self.peers:
-            print('\n There are peers still connected, please wait...')
-            while not self.peers:
-                pass
         self.s.close()
-        try:
-            sys.exit(0)
-        except SystemExit:
-            os._exit(0)
+        sys.exit(0)
 
     def discover(self, hostname):
         if hostname not in self.online_peers:
@@ -159,6 +151,3 @@ class Server:
             print (hostname + " has not connected to server yet.")
             return "OFFLINE"
     
-    def stop(self):
-        self.s.close()
-        sys.exit(0)

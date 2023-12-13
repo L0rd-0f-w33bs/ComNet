@@ -115,7 +115,7 @@ class ServerUI:
         self.server.start()
         
     def on_close(self):
-        self.server.stop()
+        self.server.shutdown()
         self.app.destroy()
 
 

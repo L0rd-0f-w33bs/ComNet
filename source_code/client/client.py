@@ -137,7 +137,6 @@ class Client:
                 to_send = file.read(1024)
         self.sharing-=1
         print('Uploading Completed!')
-        # Restore CLI
         soc.close()
 
 

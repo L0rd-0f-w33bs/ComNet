@@ -39,3 +39,14 @@ To use these two functions, first select a client in the left window, then click
 
 2. For client:
 
+For the client interface, there are three main functions, namely: Publish - to update the file to the repository and notify the server,
+Fetch - to receive the file from another client in the system, and My repository - to view all the files currently available to the client.
+
+When using the Publish function, the system will display a window that allows users to choose 1 file from their computer to publish to the server.
+At that time, a copy of that file will be created and saved in the repository.
+
+As for the Fetch function, the screen will display a list of files that are currently available in the system.
+These files are located on different clients that are currently online. After the user has selected a file,
+they will continue to select the IP address of the location that is holding the file from the list.
+
+Finally, users can also exit the application by clicking the Disconnect button in the lower left corner of the screen.

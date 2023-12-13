@@ -62,28 +62,40 @@ class Server:
         port = None
         hostname= None
         while True:
-                rep = soc.recv(1024).decode('utf-8')
-                print('Recieve request:\n%s' % rep)
-                method = rep.split()[0]
-                if method == 'info': 
-                    port = rep.split()[1]
-                    hostname=rep.split()[2]
-                    self.online_peers[hostname]=(soc,port)
-                    self.peers[hostname]=(addr[0],[])
-                elif method == 'publish':
-                    title = rep.split()[1]
-                    self.addRecord(hostname,title)
-                elif method == 'getall':
-                    self.getAll(soc)
-                elif method == 'fetch':
-                    title = rep.split()[1]
-                    self.getPeersOfRfc(soc, title)
-                elif method == 'disconnect':
+                try:
+                    rep = soc.recv(1024).decode('utf-8')
+                    print('Recieve request:\n%s' % rep)
+                    method = rep.split()[0]
+                    if method == 'info': 
+                        port = rep.split()[1]
+                        hostname=rep.split()[2]
+                        self.online_peers[hostname]=(soc,port)
+                        self.peers[hostname]=(addr[0],[])
+                    elif method == 'publish':
+                        title = rep.split()[1]
+                        self.addRecord(hostname,title)
+                    elif method == 'getall':
+                        self.getAll(soc)
+                    elif method == 'fetch':
+                        title = rep.split()[1]
+                        self.getPeersOfRfc(soc, title)
+                    elif method == 'disconnect':
+                        self.online_peers.pop(hostname)
+                        soc.close()
+                        break
+                    else:
+                        self.msgqueue.put(rep)
+                
+                except TimeoutError as e:
                     self.online_peers.pop(hostname)
                     soc.close()
-                    break
-                else:
-                    self.msgqueue.put(rep)
+                    print (hostname + " has not connected to server yet.")
+                    self.msgqueue.put("OFFLINE")
+                finally:
+                    if hostname not in self.online_peers:
+                        soc.close()
+                        break
+
 
     def addRecord(self, hostname, title):
         self.peers[hostname][1].append(title)
@@ -125,31 +137,42 @@ class Server:
             return "OFFLINE"
         msg="discover"
         file_list=[]
-        soc=self.online_peers[hostname][0]
-        soc.sendall(msg.encode('utf-8'))
-        rep=self.msgqueue.get()
-        file=rep.splitlines()
-        for idx in range(1,len(file)):
-            file_list.append(file[idx])
-            print(file[idx])
-            if file[idx] not in self.file_record:
-                self.file_record[file[idx]].append(hostname)
-            else:
-                if hostname not in self.file_record[file[idx]]:
+        try:
+            soc=self.online_peers[hostname][0]
+            soc.sendall(msg.encode('utf-8'))
+            rep=self.msgqueue.get()
+            file=rep.splitlines()
+            for idx in range(1,len(file)):
+                file_list.append(file[idx])
+                print(file[idx])
+                if file[idx] not in self.file_record:
                     self.file_record[file[idx]].append(hostname)
-        return file_list
-            
+                else:
+                    if hostname not in self.file_record[file[idx]]:
+                        self.file_record[file[idx]].append(hostname)
+            return file_list
+        except:
+            self.online_peers[hostname][0].close()
+            self.online_peers.pop(hostname)
+            print (hostname + " has not connected to server yet.")
+            return "OFFLINE"
         
     def ping(self, hostname):
         if hostname not in self.online_peers:
             print (hostname + " has not connected to server yet.")
             return "OFFLINE"
         msg="ping"
-        soc=self.online_peers[hostname][0]
-        soc.sendall(msg.encode('utf-8'))
-        msg=self.msgqueue.get()
-        print (hostname + " is "+ msg)
-        return msg
+        try:
+            soc=self.online_peers[hostname][0]
+            soc.sendall(msg.encode('utf-8'))
+            msg=self.msgqueue.get()
+            print (hostname + " is "+ msg)
+            return msg
+        except:
+            self.online_peers[hostname][0].close()
+            self.online_peers.pop(hostname)
+            print (hostname + " has not connected to server yet.")
+            return "OFFLINE"
         
 if __name__ == '__main__':
     s = Server()

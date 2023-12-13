@@ -100,7 +100,7 @@ class Client:
         self.file_list.append(fname)
         msg = 'publish ' + fname
         self.server.sendall(msg.encode('utf-8'))
-        return "Completed!"
+        return "Publish Completed!"
     
     def get_server_files(self):
         msg='getall'
@@ -179,12 +179,13 @@ class Client:
             while content:
                 file.write(content)
                 content = soc.recv(1024)
-        print('Downloading Completed!')
-        self.downloading=True
+        print('Download Completed!')
+        self.downloading=False
+        self.file_list.append(fname)
         soc.close()
         # Restore CLI
         print('\n> publish lname fname: To publish a file,\n> fetch fname: To download a file,\nshutdown: Shutdown\nEnter your request: ')
-        return 'Downloading Completed!'
+        return 'Download Completed!'
 
     def shutdown(self):
         print('\nShutting Down...')

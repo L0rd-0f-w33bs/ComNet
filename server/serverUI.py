@@ -94,7 +94,7 @@ class ServerUI:
                 MessageLabel.place(relx=0.81, rely=0.43, anchor=ctk.CENTER)
                 MessageLabel.after(2000, lambda: MessageLabel.place_forget())
             else:
-                repoLabel = ctk.CTkLabel(self.MainFrame, text="Repository of " + hostname, text_color='white', fg_color='#059669', corner_radius=10, font=self.mediumFont)
+                repoLabel = ctk.CTkLabel(self.MainFrame, text="Repository", text_color='white', fg_color='#059669', corner_radius=10, font=self.mediumFont)
                 repoLabel.place(relx=0.81, rely=0.5, anchor=ctk.CENTER)
                 if self.RepoList.size():
                     self.RepoList.delete(0,'END')

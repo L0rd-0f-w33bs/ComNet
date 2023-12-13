@@ -140,7 +140,7 @@ class Client:
         self.sharer.listen(5)
         while True:
             requester,addr= self.sharer.accept()
-            self.sharing=True
+            self.sharing+=1
             handler = threading.Thread(
                 target=self.handle_sharing, args=(requester,))
             handler.start()
@@ -148,7 +148,6 @@ class Client:
     def handle_sharing(self, soc):
         name = soc.recv(1024).decode('utf-8')
         print('\nUploading...')
-        self.sharing +=1
         path = '%s/%s' % (self.REPOSITORY, name)
         with open(path, 'rb') as file:
             to_send = file.read(1024)

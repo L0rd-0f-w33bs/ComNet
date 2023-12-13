@@ -28,6 +28,7 @@ class ServerUI:
         self.app.geometry('960x540')
         threading.Thread(target=self.start_server).start()
         self.create_object()
+        self.app.protocol("WM_DELETE_WINDOW", self.on_close)
 
 
     def create_object(self):
@@ -112,7 +113,10 @@ class ServerUI:
 
     def start_server(self):
         self.server.start()
-
+        
+    def on_close(self):
+        self.server.stop()
+        self.app.destroy()
 
 
 if __name__ == '__main__':

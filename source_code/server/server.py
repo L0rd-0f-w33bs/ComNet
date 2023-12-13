@@ -158,4 +158,7 @@ class Server:
             self.online_peers.pop(hostname)
             print (hostname + " has not connected to server yet.")
             return "OFFLINE"
-        
+    
+    def stop(self):
+        self.s.close()
+        sys.exit(0)

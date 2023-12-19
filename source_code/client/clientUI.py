@@ -54,10 +54,10 @@ class ClientUI:
                                           text_color='white')
         self.ServerIPEntry = ctk.CTkEntry(self.LoginFrame, 200, 30,
                                     corner_radius=10, placeholder_text='Server IP', text_color='black')
-        self.HostnameLabel = ctk.CTkLabel(self.LoginFrame, 100, 30, text='Hostname:', font=self.mediumFont,
+        self.HostnameLabel = ctk.CTkLabel(self.LoginFrame, 100, 30, text='Username:', font=self.mediumFont,
                                           text_color='white')
         self.HostnameEntry = ctk.CTkEntry(self.LoginFrame, 200, 30,
-                                    corner_radius=10, placeholder_text='Hostname', text_color='black')
+                                    corner_radius=10, placeholder_text='Username', text_color='black')
         self.ConnectButton = ctk.CTkButton(self.LoginFrame, text='Connect', text_color='black', command=self.connect, fg_color='#d4f592', hover_color='#92f5ac', font=self.mediumFont)
 
         #############################################
@@ -138,7 +138,7 @@ class ClientUI:
         self.Avatar.configure(image=ctk.CTkImage(Image.open('avatar.png'), size=(50,50)))
         self.Avatar.place(relx=0.05, rely=0.15, anchor=ctk.CENTER)
         self.HostnameDis = ctk.CTkLabel(self.MainFrame, 80, 15, fg_color='#059669', 
-                                        text='Hostname: ' + self.client.hostname, text_color='white', font=self.smallFont)
+                                        text='Username: ' + self.client.hostname, text_color='white', font=self.smallFont)
         self.IPDis = ctk.CTkLabel(self.MainFrame, 80, 15, fg_color='#059669', text='Your IP: ' + get_local_ip(),
                                   text_color='white', font=self.smallFont)
         self.ServerIPDis = ctk.CTkLabel(self.MainFrame, 80, 15, fg_color='#059669', text='Server IP: ' + self.client.SERVER_HOST,
@@ -164,7 +164,7 @@ class ClientUI:
         hostname = self.HostnameEntry.get()
         if not SERVER_IP or not hostname:
             # Handle empty fields
-            self.WarningLabel = ctk.CTkLabel(self.LoginFrame, text='Please enter both Server IP and Hostname!',
+            self.WarningLabel = ctk.CTkLabel(self.LoginFrame, text='Please enter both Server IP and Username!',
                                               text_color='white', font=self.smallFont)
             self.WarningLabel.place(relx=0.5, rely=0.76, anchor=ctk.CENTER)
             self.WarningLabel.after(2000, lambda: self.WarningLabel.place_forget())
